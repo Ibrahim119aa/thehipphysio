@@ -1,5 +1,6 @@
-'use client';
 
+'use client';
+import { CreateUserPayload } from '@/lib/types';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -118,10 +119,27 @@ export default function UsersPage() {
     setSaving(true);
     try {
       if (selectedUser) {
+        // update user
         await updateUser({ _id: selectedUser._id, ...values });
       } else {
-        // on create, backend expects password; your UserModal should enforce it
-        await addUser(values as any);
+        // create user
+        if (typeof values.password === 'string') {
+          const payload: CreateUserPayload = {
+            name: values.name ?? '',
+            email: values.email ?? '',
+            role: values.role as "admin" | "user" | "therapist",
+            password: values.password,
+          };
+          await addUser({
+            name: values.name ?? '',
+            email: values.email ?? '',
+            password: values.password,
+            role: values.role as "user" | "admin",
+          });
+
+        } else {
+          throw new Error('Password is required when creating a user.');
+        }
       }
       await fetchUsers();
       handleCloseModal();

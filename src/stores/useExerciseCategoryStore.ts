@@ -21,7 +21,7 @@ type State = {
 };
 
 
-export const useExerciseCategoryStore = create<State>((set, get) => ({
+export const useExerciseCategoryStore = create<State>((set) => ({
   exerciseCategories: [],
   loading: false,
 
@@ -32,7 +32,7 @@ export const useExerciseCategoryStore = create<State>((set, get) => ({
         credentials: 'include',  
       });
 
-      const result = await res.json().catch(() => ({} as any));
+      const result = await res.json().catch(() => ({} as unknown));
       console.log("this is exercise category");
       
       console.log(result);
@@ -58,7 +58,7 @@ export const useExerciseCategoryStore = create<State>((set, get) => ({
       body: JSON.stringify(payload),
     });
     
-    const data = await res.json().catch(() => ({} as any));
+    const data = await res.json().catch(() => ({} as unknown));
     
     if (!res.ok) throw new Error(data?.message || data?.error || 'Failed to create category');
 
@@ -79,7 +79,7 @@ export const useExerciseCategoryStore = create<State>((set, get) => ({
       body: JSON.stringify(payload),
     });
 
-    const data = await res.json().catch(() => ({} as any));
+    const data = await res.json().catch(() => ({} as unknown));
 
     if (!res.ok) throw new Error(data?.message || data?.error || 'Failed to update category');
 
@@ -97,7 +97,7 @@ export const useExerciseCategoryStore = create<State>((set, get) => ({
       credentials: 'include',
     });
     if (!res.ok) {
-      const data = await res.json().catch(() => ({} as any));
+      const data = await res.json().catch(() => ({} as unknown));
       throw new Error(data?.message || data?.error || 'Failed to delete category');
     }
     set((s) => ({

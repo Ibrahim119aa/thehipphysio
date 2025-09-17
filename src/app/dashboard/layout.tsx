@@ -33,7 +33,7 @@ const navItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { loading, logout } = useUserStore();
+  const { logout } = useUserStore();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({});
 
@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!checkLogin()) {
       router.push("/");
     }
-  }, []);
+  }, [router]);
 
   const toggleMenu = (label: string) => {
     setExpandedMenus((prev) => ({ ...prev, [label]: !prev[label] }));

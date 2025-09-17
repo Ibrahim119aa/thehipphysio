@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import config from '@/config/config';
 import { toast } from 'sonner';
@@ -69,14 +70,30 @@ export interface UserState {
 }
 
 // ========= Helpers =========
-const normalizeUser = (u: any): User => ({
-  ...u,
-  // keep UI stable if backend ever sends "username"
-  name: u?.name ?? u?.username ?? '',
-});
+const normalizeUser = (u: unknown): User => {
+  const obj = typeof u === 'object' && u !== null ? u as Partial<User> : {};
+  return {
+    _id: obj._id ?? '',
+    name: (obj.name ?? (obj as { username?: string })?.username) ?? '',
+    email: obj.email ?? '',
+    password: obj.password,
+    role: obj.role ?? 'user',
+    status: obj.status ?? 'active',
+    occupation: obj.occupation ?? null,
+    dob: obj.dob ?? null,
+    profile_photo: obj.profile_photo,
+    fcmToken: obj.fcmToken ?? null,
+    startDate: obj.startDate ?? '',
+    lastLogin: obj.lastLogin ?? '',
+    createdAt: obj.createdAt ?? '',
+    updatedAt: obj.updatedAt ?? '',
+    notifications: Array.isArray(obj.notifications) ? obj.notifications : [],
+    purchasedPlans: Array.isArray(obj.purchasedPlans) ? obj.purchasedPlans : [],
+  };
+};
 
-const clean = <T extends Record<string, any>>(obj: T): T => {
-  const out: Record<string, any> = {};
+const clean = <T extends Record<string, unknown>>(obj: T): T => {
+  const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(obj)) {
     if (v !== undefined && v !== null && v !== '') out[k] = v;
   }
@@ -100,7 +117,7 @@ export const useUserStore = create<UserState>((set) => ({
         credentials: 'include',
       });
 
-      const result = await response.json().catch(() => ({} as any));
+      const result = await response.json().catch(() => ({} as unknown));
       if (!result?.success) {
         set({ loading: false });
         toast.error(result?.message || 'Failed to fetch users');
@@ -133,17 +150,17 @@ export const useUserStore = create<UserState>((set) => ({
         }),
       });
 
-      const result = await res.json().catch(() => ({} as any));
+      const result = await res.json().catch(() => ({} as unknown));
       if (!res.ok || !result?.success) {
-        throw new Error(result?.message || result?.error || 'Failed to create user');
+        throw new Error((result?.message || result?.error || 'Failed to create user') as string);
       }
 
       const created: User = normalizeUser(result?.data ?? result?.user);
       set((s) => ({ users: [created, ...s.users] }));
       toast.success('User created');
       return created;
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to create user');
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to create user');
       throw err;
     }
   },
@@ -159,17 +176,17 @@ export const useUserStore = create<UserState>((set) => ({
         body: JSON.stringify(body),
       });
 
-      const result = await res.json().catch(() => ({} as any));
+      const result = await res.json().catch(() => ({} as unknown));
       if (!res.ok || !result?.success) {
-        throw new Error(result?.message || result?.error || 'Failed to update user');
+        throw new Error((result?.message || result?.error || 'Failed to update user') as string);
       }
 
       const updated: User = normalizeUser(result?.data ?? result?.user);
       set((s) => ({ users: s.users.map((u) => (u._id === _id ? updated : u)) }));
       toast.success('User updated');
       return updated;
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to update user');
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to update user');
       throw err;
     }
   },
@@ -182,15 +199,15 @@ export const useUserStore = create<UserState>((set) => ({
         credentials: 'include',
       });
 
-      const result = await res.json().catch(() => ({} as any));
+      const result = await res.json().catch(() => ({} as unknown));
       if (!res.ok || !result?.success) {
-        throw new Error(result?.message || result?.error || 'Failed to delete user');
+        throw new Error((result?.message || result?.error || 'Failed to delete user') as string);
       }
 
       set((s) => ({ users: s.users.filter((u) => u._id !== id) }));
       toast.success('User deleted');
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to delete user');
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to delete user');
       throw err;
     }
   },
@@ -206,7 +223,7 @@ export const useUserStore = create<UserState>((set) => ({
         body: JSON.stringify({ email, password }),
       });
 
-      const result = await res.json().catch(() => ({} as any));
+      const result = await res.json().catch(() => ({} as unknown));
       if (!result?.success) {
         toast.error(result?.message || 'Login failed.');
         return false;
@@ -226,7 +243,7 @@ export const useUserStore = create<UserState>((set) => ({
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
       });
-      const result = await res.json().catch(() => ({} as any));
+      const result = await res.json().catch(() => ({} as unknown));
 
       if (!result?.success) {
         toast.error(result?.message || 'Logout failed.');
@@ -250,7 +267,7 @@ export const useUserStore = create<UserState>((set) => ({
         credentials: 'include',
       });
 
-      const result = await response.json().catch(() => ({} as any));
+      const result = await response.json().catch(() => ({} as unknown));
       if (!result?.success) {
         set({ loading: false });
         toast.error(result?.message || 'Failed to fetch users');

@@ -1,4 +1,4 @@
-// components/exercises/ExerciseModal.tsx
+
 'use client';
 
 import { useEffect } from 'react';
@@ -74,15 +74,16 @@ export function ExerciseModal({
   useEffect(() => {
     const getCategories = async () => {
       await fetchCategories();
-    }
+    };
     if (isOpen && categories.length === 0) getCategories();
-  }, [isOpen, fetchCategories]);
+  }, [isOpen, fetchCategories, categories.length]);
+
 
   useEffect(() => {
     if (initialData) {
       form.reset({
         name: initialData.name,
-        category: (initialData as any)?.category?._id ?? '', // guard for safety
+        category: (initialData as { category?: { _id: string } })?.category?._id ?? '', // guard for safety
         reps: String(initialData.reps ?? ''),
         sets: String(initialData.sets ?? ''),
         description: initialData.description ?? '',
@@ -129,7 +130,7 @@ export function ExerciseModal({
   };
 
   console.log('categories', categories);
-  
+
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>

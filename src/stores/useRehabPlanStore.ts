@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { toast } from 'sonner';
 import config from '@/config/config';
@@ -50,9 +51,9 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       }
 
       set({ plans: result.data, loading: false });
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to fetch rehab plans');
-      set({ error: err?.message || 'Failed to fetch rehab plans', loading: false });
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to fetch rehab plans');
+      set({ error: (err as Error).message || 'Failed to fetch rehab plans', loading: false });
     }
   },
 
@@ -92,9 +93,9 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
         loading: false,
       }));
       return true;
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to create rehab plan');
-      set({ error: err?.message || 'Failed to create rehab plan', loading: false });
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to create rehab plan');
+      set({ error: (err as Error).message || 'Failed to create rehab plan', loading: false });
       return false;
     }
   },
@@ -135,9 +136,9 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
         loading: false,
       }));
       return true;
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to update rehab plan');
-      set({ error: err?.message || 'Failed to update rehab plan', loading: false });
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to update rehab plan');
+      set({ error: (err as Error).message || 'Failed to update rehab plan', loading: false });
       return false;
     }
   },
@@ -163,9 +164,9 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
         plans: state.plans.filter((p) => p?._id !== id),
         loading: false,
       }));
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to delete rehab plan');
-      set({ error: err?.message || 'Failed to delete rehab plan', loading: false });
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to delete rehab plan');
+      set({ error: (err as Error).message || 'Failed to delete rehab plan', loading: false });
     }
   },
   
@@ -190,9 +191,9 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       toast.success(result?.message || 'Plan assigned successfully!');
       set({ loading: false });
       return true;
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to assign plan');
-      set({ error: err?.message || 'Failed to assign plan', loading: false });
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to assign plan');
+      set({ error: (err as Error).message || 'Failed to assign plan', loading: false });
       return false;
     }
   },
@@ -220,7 +221,7 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
         }),
       });
 
-      const data1 = await res1.json().catch(() => ({} as any));
+      const data1 = await res1.json().catch(() => ({} as unknown));
       
       if (!res1.ok || data1?.success === false) {
         toast.error(data1?.message || 'Failed to create session');
@@ -252,7 +253,7 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
         }),
       });
 
-      const data2 = await res2.json().catch(() => ({} as any));
+      const data2 = await res2.json().catch(() => ({} as unknown));
       
       if (!res2.ok || data2?.success === false) {
         toast.error(data2?.message || 'Failed to attach session to plan');
@@ -266,9 +267,9 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       
       set({ loading: false });
       return true;
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to add session');
-      set({ error: err?.message || 'Failed to add session', loading: false });
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to add session');
+      set({ error: (err as Error).message || 'Failed to add session', loading: false });
       return false;
   }
 }

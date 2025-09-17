@@ -1,4 +1,4 @@
-// src/stores/useDashboardStore.ts
+
 import { create } from 'zustand';
 import config from '@/config/config';
 
@@ -85,7 +85,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
 
       // Parse JSON safely
       const raw: ApiEnvelope<DashboardAnalytics> & Partial<DashboardAnalytics> =
-        await res.json().catch(() => ({} as any));
+        await res.json().catch(() => ({} as unknown));
 
       console.log('[dashboard] raw payload:', raw);
 
@@ -94,8 +94,8 @@ export const useDashboardStore = create<DashboardState>((set) => ({
 
       if (!res.ok) {
         const msg =
-          (raw as any)?.message ||
-          (raw as any)?.error ||
+          (raw as { message?: string; error?: string })?.message ||
+          (raw as { message?: string; error?: string })?.error ||
           `HTTP ${res.status}`;
         throw new Error(msg);
       }
@@ -119,12 +119,12 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       };
 
       set({ analytics: normalized, loading: false, error: null });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[dashboard] fetchAnalytics error:', err);
       set({
         analytics: null,
         loading: false,
-        error: err?.message || 'Failed to fetch analytics',
+        error: (err as { message?: string })?.message || 'Failed to fetch analytics',
       });
     }
   },

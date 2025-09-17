@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -22,7 +23,7 @@ import { useRehabPlanStore } from '@/stores/useRehabPlanStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { RehabPlan } from '@/lib/types';
 
-const isPlan = (x: any): x is RehabPlan => !!x && typeof x._id === 'string';
+const isPlan = (x: unknown): x is RehabPlan => !!x && typeof (x as RehabPlan)._id === 'string';
 
 /** Row actions — menu closes before opening any overlay */
 function RowActions({
@@ -89,8 +90,11 @@ export default function RehabPlansPage() {
   const [selectedPlan, setSelectedPlan] = useState<RehabPlan | null>(null);
 
   useEffect(() => {
-    if (!plans || plans.length === 0) fetchPlans();
-  }, [plans?.length, fetchPlans]);
+    if (!plans || plans.length === 0) {
+      fetchPlans();
+    }
+  }, [plans, fetchPlans]);
+
 
   // Create/Edit
   const openCreate = () => { setSelectedPlan(null); setIsPlanModalOpen(true); };
@@ -125,12 +129,25 @@ export default function RehabPlansPage() {
   };
 
   // Submit plan (create/update)
-  const handlePlanSubmit = async (payload: any) => {
+  const handlePlanSubmit = async (payload: Record<string, unknown>) => {
     const ok = selectedPlan
-      ? await updatePlan({ _id: selectedPlan._id, ...payload })
-      : await addPlan(payload);
+      ? await updatePlan({
+          _id: selectedPlan._id,
+          name: payload.name as string,
+          type: payload.type as "Free" | "Paid",
+          durationWeeks: payload.durationWeeks as number,
+          description: payload.description as string | undefined,
+        })
+      : await addPlan({
+          name: payload.name as string,
+          type: payload.type as "Free" | "Paid",
+          durationWeeks: payload.durationWeeks as number,
+          description: payload.description as string | undefined,
+        });
+
     if (ok) closePlanModal();
   };
+
 
   // Submit assign
   const handleAssignSubmit = async (userId: string) => {

@@ -29,7 +29,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       set({ notifications: result.notifications, loading: false });
 
     } catch (err) {
-      set({ error: 'Failed to fetch notifications', loading: false });
+      set({ error: `Failed to fetch notifications ${ (err as Error).message}`, loading: false });
     }
   },
 sendNotification: async (notification) => {

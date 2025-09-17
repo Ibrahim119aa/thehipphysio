@@ -29,7 +29,7 @@ type State = {
   deleteVideo: (id: string) => Promise<void>;
 };
 
-export const useEducationalVideoStore = create<State>((set, get) => ({
+export const useEducationalVideoStore = create<State>((set) => ({
   videos: [],
   categories: [],
   loading: false,
@@ -51,9 +51,9 @@ export const useEducationalVideoStore = create<State>((set, get) => ({
       }
       
       set({ videos: result.data ?? [], loading: false });
-    } catch (err: any) {
-      toast.error(err.message);
-      set({ error: err.message, loading: false });
+    } catch (err: unknown) {
+      toast.error((err as { message?: string })?.message || 'Failed to fetch videos');
+      set({ error: (err as { message?: string })?.message || 'Failed to fetch videos', loading: false });
     }
   },
 
@@ -73,8 +73,8 @@ export const useEducationalVideoStore = create<State>((set, get) => ({
       }
     
       set({ categories: result.categories ?? [] });
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      toast.error((err as { message?: string })?.message || 'Failed to fetch categories');
     }
   },
 
@@ -98,9 +98,9 @@ export const useEducationalVideoStore = create<State>((set, get) => ({
       toast.success(result?.message || 'Video added successfully!');
       set({ loading: false });
       return true;
-    } catch (err: any) {
-      toast.error(err.message);
-      set({ error: err.message, loading: false });
+    } catch (err: unknown) {
+      toast.error((err as { message?: string })?.message || 'Failed to add video');
+      set({ error: (err as { message?: string })?.message || 'Failed to add video', loading: false });
       return false;
     }
   },
@@ -128,9 +128,9 @@ export const useEducationalVideoStore = create<State>((set, get) => ({
         loading: false,
       }));
       return true;
-    } catch (err: any) {
-      toast.error(err.message);
-      set({ error: err.message, loading: false });
+    } catch (err: unknown) {
+      toast.error((err as { message?: string })?.message || 'Failed to update video');
+      set({ error: (err as { message?: string })?.message || 'Failed to update video', loading: false });
       return false;
     }
   },
@@ -155,9 +155,9 @@ export const useEducationalVideoStore = create<State>((set, get) => ({
         videos: state.videos.filter((v) => v._id !== id),
         loading: false,
       }));
-    } catch (err: any) {
-      toast.error(err.message);
-      set({ error: err.message, loading: false });
+    } catch (err: unknown) {
+      toast.error((err as { message?: string })?.message || 'Failed to delete video');
+      set({ error: (err as { message?: string })?.message || 'Failed to delete video', loading: false });
     }
   },
 }));

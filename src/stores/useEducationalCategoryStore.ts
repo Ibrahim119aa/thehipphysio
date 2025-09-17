@@ -21,7 +21,7 @@ type State = {
   deleteCategory: (id: string) => Promise<void>;
 };
 
-export const useEducationalCategoryStore = create<State>((set, get) => ({
+export const useEducationalCategoryStore = create<State>((set => ({
   categories: [],
   loading: false,
   error: null,
@@ -41,9 +41,9 @@ export const useEducationalCategoryStore = create<State>((set, get) => ({
       }
 
       set({ categories: result.categories ?? [], loading: false });
-    } catch (err: any) {
-      toast.error(err.message);
-      set({ error: err.message, loading: false });
+    } catch (err: unknown) {
+      toast.error((err as { message?: string })?.message || 'Failed to fetch categories');
+      set({ error: (err as { message?: string })?.message || 'Failed to fetch categories', loading: false });
     }
   },
 
@@ -67,9 +67,9 @@ export const useEducationalCategoryStore = create<State>((set, get) => ({
       toast.success(result?.message || 'Category added successfully!');
       set((state) => ({ categories: [result.data, ...state.categories], loading: false }));
       return true;
-    } catch (err: any) {
-      toast.error(err.message);
-      set({ error: err.message, loading: false });
+    } catch (err: unknown) {
+      toast.error((err as { message?: string })?.message || 'Failed to add category');
+      set({ error: (err as { message?: string })?.message || 'Failed to add category', loading: false });
       return false;
     }
   },
@@ -98,9 +98,9 @@ export const useEducationalCategoryStore = create<State>((set, get) => ({
         loading: false,
       }));
       return true;
-    } catch (err: any) {
-      toast.error(err.message);
-      set({ error: err.message, loading: false });
+    } catch (err: unknown) {
+      toast.error((err as { message?: string })?.message || 'Failed to update category');
+      set({ error: (err as { message?: string })?.message || 'Failed to update category', loading: false });
       return false;
     }
   },
@@ -125,9 +125,9 @@ export const useEducationalCategoryStore = create<State>((set, get) => ({
         categories: state.categories.filter((c) => c._id !== id),
         loading: false,
       }));
-    } catch (err: any) {
-      toast.error(err.message);
-      set({ error: err.message, loading: false });
+    } catch (err: unknown) {
+      toast.error((err as { message?: string })?.message || 'Failed to delete category');
+      set({ error: (err as { message?: string })?.message || 'Failed to delete category', loading: false });
     }
   },
-}));
+})));

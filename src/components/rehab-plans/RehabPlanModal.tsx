@@ -70,12 +70,13 @@ export function RehabPlanModal({
   /** local selection state for category IDs (checkbox list) */
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  /** fetch categories when modal opens (only if empty) */
+
   useEffect(() => {
     if (isOpen && (!rehabPlanCategories || rehabPlanCategories.length === 0)) {
       fetchRehabPlanCategories();
     }
-  }, [isOpen, rehabPlanCategories?.length, fetchRehabPlanCategories]);
+  }, [isOpen, rehabPlanCategories, fetchRehabPlanCategories]);
+
 
   const form = useForm<FormInput>({
     resolver: zodResolver(schema),
@@ -115,7 +116,7 @@ export function RehabPlanModal({
             : String(initialData.weekEnd),
         planDurationInWeeks:
           initialData.planDurationInWeeks === null ||
-          initialData.planDurationInWeeks === undefined
+            initialData.planDurationInWeeks === undefined
             ? ''
             : String(initialData.planDurationInWeeks),
       } as FormInput);
@@ -291,7 +292,7 @@ export function RehabPlanModal({
                         value={field.value ?? ''}
                         onChange={(e) => field.onChange(e.currentTarget.value)}
                         placeholder="e.g., 9.99"
-                        disabled={planType === 'free'} 
+                        disabled={planType === 'free'}
                       />
                     </FormControl>
                     <FormMessage />

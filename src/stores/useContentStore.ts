@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { ContentState } from '@/lib/types';
-import { apiService } from '@/services/apiServices';
 import { toast } from 'sonner';
 import config from '@/config/config';
 
@@ -28,7 +27,7 @@ export const useContentStore = create<ContentState>((set, get) => ({
            
       set({ pages: data.data, loading: false });
     } catch (err) {
-      set({ error: 'Failed to fetch content pages', loading: false });
+      set({ error: `Failed to fetch content pages ${err}`, loading: false });
     }
   },
   updatePage: async (slug, content) => {
@@ -63,7 +62,7 @@ export const useContentStore = create<ContentState>((set, get) => ({
       set({ pages, loading: false });
       toast.success(data.message);
     } catch (err) {
-      set({ error: 'Failed to update page', loading: false });
+      set({ error: `Failed to update page ${err}`, loading: false });
     }
   }
 }));

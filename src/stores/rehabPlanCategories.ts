@@ -1,4 +1,3 @@
-// stores/useRehabPlanCategoryStore.ts
 import config from '@/config/config';
 import { toast } from 'sonner';
 import { create } from 'zustand';
@@ -21,7 +20,7 @@ type State = {
 };
 
 
-export const useRehabPlanCategoryStore = create<State>((set, get) => ({
+export const useRehabPlanCategoryStore = create<State>((set) => ({
   rehabPlanCategories: [],
   loading: false,
 
@@ -32,7 +31,7 @@ export const useRehabPlanCategoryStore = create<State>((set, get) => ({
         credentials: 'include',  
       });
 
-      const result = await res.json().catch(() => ({} as any));
+      const result = await res.json().catch(() => ({} as unknown));
 
       if (!result.success) {
         toast.error(result?.message || 'Failed to fetch categories')
@@ -55,7 +54,7 @@ export const useRehabPlanCategoryStore = create<State>((set, get) => ({
       body: JSON.stringify(payload),
     });
     
-    const data = await res.json().catch(() => ({} as any));
+    const data = await res.json().catch(() => ({} as unknown));
     
     if (!res.ok) throw new Error(data?.message || data?.error || 'Failed to create category');
 
@@ -76,7 +75,7 @@ export const useRehabPlanCategoryStore = create<State>((set, get) => ({
       body: JSON.stringify(payload),
     });
 
-    const data = await res.json().catch(() => ({} as any));
+    const data = await res.json().catch(() => ({} as unknown));
 
     if (!res.ok) throw new Error(data?.message || data?.error || 'Failed to update category');
 
@@ -94,7 +93,7 @@ export const useRehabPlanCategoryStore = create<State>((set, get) => ({
       credentials: 'include',
     });
     if (!res.ok) {
-      const data = await res.json().catch(() => ({} as any));
+      const data = await res.json().catch(() => ({} as unknown));
       throw new Error(data?.message || data?.error || 'Failed to delete category');
     }
     set((s) => ({

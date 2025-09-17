@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -124,7 +125,7 @@ export default function ExerciseCategoriesPage() {
     }
   };
 
-  const isCategory = (x: any): x is RehabPlanCategory => !!x && typeof x.title === 'string' && typeof x._id === 'string';
+  const isCategory = (x: unknown): x is RehabPlanCategory => !!x && typeof (x as RehabPlanCategory).title === 'string' && typeof (x as RehabPlanCategory)._id === 'string';
 
   const safeCategories = rehabPlanCategories.filter(isCategory);
 

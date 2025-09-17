@@ -1,3 +1,4 @@
+
 // stores/usePlanScheduleStore.ts
 import { create } from 'zustand';
 import config from '@/config/config';
@@ -33,7 +34,7 @@ type State = {
   removeExerciseFromSession: (p: { sessionId: string; exerciseId: string }) => Promise<boolean>;
 };
 
-export const usePlanScheduleStore = create<State>((set, get) => ({
+export const usePlanScheduleStore = create<State>((set) => ({
   schedule: null,
   loading: false,
   error: null,
@@ -51,9 +52,9 @@ export const usePlanScheduleStore = create<State>((set, get) => ({
         return;
       }
       set({ schedule: json.data, loading: false });
-    } catch (e: any) {
-      toast.error(e?.message || 'Failed to load schedule');
-      set({ error: e?.message || 'Failed to load schedule', loading: false });
+    } catch (e: unknown) {
+      toast.error((e as Error).message || 'Failed to load schedule');
+      set({ error: (e as Error).message || 'Failed to load schedule', loading: false });
     }
   },
 
@@ -91,9 +92,9 @@ export const usePlanScheduleStore = create<State>((set, get) => ({
       });
       toast.success('Exercises added');
       return true;
-    } catch (e: any) {
-      toast.error(e?.message || 'Failed to add exercises');
-      set({ error: e?.message || 'Failed to add exercises', loading: false });
+    } catch (e: unknown) {
+      toast.error((e as Error).message || 'Failed to add exercises');
+      set({ error: (e as Error).message || 'Failed to add exercises', loading: false });
       return false;
     }
   },
@@ -129,9 +130,9 @@ export const usePlanScheduleStore = create<State>((set, get) => ({
       });
       toast.success('Exercise removed');
       return true;
-    } catch (e: any) {
-      toast.error(e?.message || 'Failed to remove exercise');
-      set({ error: e?.message || 'Failed to remove exercise', loading: false });
+    } catch (e: unknown) {
+      toast.error((e as Error).message || 'Failed to remove exercise');
+      set({ error: (e as Error).message || 'Failed to remove exercise', loading: false });
       return false;
     }
   },

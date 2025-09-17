@@ -1,5 +1,5 @@
 'use client';
-
+import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import { useForm, SubmitHandler } from 'react-hook-form';
@@ -19,7 +19,7 @@ import { useExerciseStore } from '@/stores/useExerciseStore';
 
 const schema = z.object({
   weekNumber: z.coerce.number().int().min(1, 'Week must be at least 1'),
-  dayNumber:  z.coerce.number().int().min(1, 'Day must be 1-7').max(7, 'Day must be 1-7'),
+  dayNumber: z.coerce.number().int().min(1, 'Day must be 1-7').max(7, 'Day must be 1-7'),
 });
 
 type FormInput = z.input<typeof schema>;
@@ -61,7 +61,8 @@ export function AddSessionModal({
     if (isOpen && (!exercises || exercises.length === 0)) {
       fetchExercises();
     }
-  }, [isOpen, exercises?.length, fetchExercises]);
+  }, [isOpen, exercises, fetchExercises]);
+
 
   useEffect(() => {
     if (!isOpen) {
@@ -81,7 +82,7 @@ export function AddSessionModal({
     return (exercises ?? []).filter((e) => {
       const inName = e.name?.toLowerCase().includes(q);
       const inTags = (e.tags ?? []).join(',').toLowerCase().includes(q);
-      const inCat  = (e.category?.title ?? '').toLowerCase().includes(q);
+      const inCat = (e.category?.title ?? '').toLowerCase().includes(q);
       return inName || inTags || inCat;
     });
   }, [exercises, query]);
@@ -188,7 +189,7 @@ export function AddSessionModal({
                         onCheckedChange={(checked) => toggle(ex._id, Boolean(checked))}
                       />
                       {ex.thumbnailUrl ? (
-                        <img src={ex.thumbnailUrl} alt={ex.name} className="h-12 w-12 rounded object-cover border" />
+                        <Image width={48} height={48} src={ex.thumbnailUrl} alt={ex.name} className="h-12 w-12 rounded object-cover border" />
                       ) : (
                         <div className="h-12 w-12 rounded bg-muted grid place-items-center text-xs text-muted-foreground">
                           No image

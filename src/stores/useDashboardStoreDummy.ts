@@ -148,7 +148,7 @@ export const useDashboardStoreDummy = create<DashboardState>((set) => ({
       const data = await mockFetchAnalytics();
       set({ analytics: data, loading: false });
     } catch (err) {
-      set({ error: 'Failed to fetch analytics', loading: false });
+      set({ error: `Failed to fetch analytics: ${err}`, loading: false });
     }
   },
 }));

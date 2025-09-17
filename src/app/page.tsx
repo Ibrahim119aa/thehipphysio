@@ -9,8 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
-import config from '@/config/config';
-import { toast } from 'sonner';
+
 import { useUserStore } from '@/stores/useUserStore';
 
 export default function LoginPage() {

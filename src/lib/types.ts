@@ -84,6 +84,13 @@ export interface RehabPlan {
 // 1) Keep a single source of truth for allowed statuses
 export type NotificationStatus = 'Sent' | 'Scheduled';
 
+export type CreateUserPayload = {
+  name: string;
+  email: string;
+  role: string;
+  password: string;
+};
+
 // 2) Shape returned/stored in state
 export interface Notification {
   _id: string;
@@ -113,11 +120,11 @@ export interface NotificationState {
 }
 
 // Optional: describe your API response to help TS
-type SendNotificationResponse = {
-  success: boolean;
-  message: string;
-  notificationId?: string;
-};
+// type SendNotificationResponse = {
+//   success: boolean;
+//   message: string;
+//   notificationId?: string;
+// };
 
 export interface ContentPage {
   _id: string;
@@ -192,7 +199,7 @@ export interface NotificationState {
   loading: boolean;
   error: string | null;
   fetchNotifications: () => Promise<void>;
-  sendNotification: (notification: Omit<Notification, '_id' | 'status' | 'sentTime'>) => Promise<void>;
+  sendNotification: (notification: SendNotificationInput) => Promise<void>;
 }
 
 export interface ContentState {

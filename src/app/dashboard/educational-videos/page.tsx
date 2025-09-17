@@ -1,7 +1,6 @@
 'use client';
-
 import { useEffect, useState } from 'react';
-import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -118,11 +117,11 @@ export default function EducationalVideosPage() {
       header: 'Categories',
       cell: (v) => {
         const names = Array.isArray(v.categories)
-          ? (v.categories as any[]).map((c) => {
+          ? (v.categories as unknown[]).map((c) => {
               if (typeof c === 'string') {
                 return categories.find((x) => x._id === c)?.title;
               }
-              return c?.title;
+              return typeof c === 'object' && c !== null && 'title' in c ? (c as { title: string }).title : undefined;
             }).filter(Boolean)
           : [];
         const text = names.length ? names.join(', ') : '—';
@@ -141,7 +140,9 @@ export default function EducationalVideosPage() {
       accessorKey: 'thumbnailUrl',
       header: 'Preview',
       cell: (v) => (
-        <img
+        <Image
+          width={64}
+          height={40}
           src={v.thumbnailUrl}
           alt={v.title}
           className="h-10 w-16 rounded object-cover border"

@@ -4,7 +4,7 @@ import { ExerciseCategory } from '@/lib/types';
 import { toast } from 'sonner';
 import config from '@/config/config';
 // This would ideally come from a central config file
-const API_BASE_URL = 'http://localhost:4200'; 
+// const API_BASE_URL = 'http://localhost:4200'; 
 
 interface CategoryState {
     categories: ExerciseCategory[];

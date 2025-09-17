@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
@@ -132,11 +131,11 @@ export default function EducationalCategoriesPage() {
   };
 
   // ── Debug + Guard: ensure rows have title/description; log the first bad one
-  const isCategory = (x: any): x is EducationalCategory =>
+  const isCategory = (x: unknown): x is EducationalCategory =>
     !!x &&
-    typeof x.title === 'string' &&
-    typeof x.description === 'string' &&
-    typeof x._id === 'string';
+    typeof (x as EducationalCategory).title === 'string' &&
+    typeof (x as EducationalCategory).description === 'string' &&
+    typeof (x as EducationalCategory)._id === 'string';
 
   const firstBadIndex = categories.findIndex((c) => !isCategory(c));
   if (firstBadIndex !== -1) {

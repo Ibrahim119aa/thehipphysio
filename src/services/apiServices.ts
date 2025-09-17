@@ -1,6 +1,6 @@
 // services/apiService.ts
 import { DashboardAnalytics, Exercise, UserWithAnalytics, RehabPlan, Notification, ContentPage } from '@/lib/types';
-import { mockDashboardData, mockUsers, mockExercises, mockPlans, mockNotifications, mockContentPages } from '@/lib/mockData';
+import { mockDashboardData, mockUsers, mockExercises, mockPlans, mockNotifications } from '@/lib/mockData';
 import config from '@/config/config';
 import { toast } from 'sonner';
 
@@ -20,17 +20,17 @@ export const apiService = {
   getExercises: async (): Promise<Exercise[]> => {
     await delay(500);
     console.log("Fetching exercises...");
-    return mockExercises;
+    return mockExercises as Exercise[];
   },
   getRehabPlans: async (): Promise<RehabPlan[]> => {
     await delay(500);
     console.log("Fetching rehab plans...");
-    return mockPlans;
+    return mockPlans as RehabPlan[];
   },
   getNotifications: async (): Promise<Notification[]> => {
     await delay(500);
     console.log("Fetching notifications...");
-    return mockNotifications;
+    return mockNotifications as Notification[];
   },
   sendNotification: async (notification: Omit<Notification, '_id' | 'status' | 'sentTime'>): Promise<Notification> => {
     await delay(500);
@@ -38,14 +38,16 @@ export const apiService = {
     const newNotification: Notification = {
       _id: `notif_${Date.now()}`,
       status: 'Sent',
-      sentTime: new Date().toISOString(),
+      // sentTime: new Date().toISOString(),
       ...notification
     };
     mockNotifications.unshift(newNotification);
     return newNotification;
   },
-  getContentPages: async (): Promise<any> => {
-
+  getContentPages: async (): Promise<unknown> => {
+    await delay(500);
+    console.log("Fetching content pages...");
+    return []; // Return an empty array or appropriate mock data
   },
   updateContentPage: async(slug: string, contentHtml: string): Promise<ContentPage> => {
     try {

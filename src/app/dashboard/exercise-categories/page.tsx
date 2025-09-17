@@ -127,8 +127,8 @@ export default function ExerciseCategoriesPage() {
     }
   };
 
-  const isCategory = (x: any): x is ExerciseCategory =>
-    !!x && typeof x.title === 'string' && typeof x._id === 'string';
+  const isCategory = (x: unknown): x is ExerciseCategory =>
+    !!x && typeof (x as ExerciseCategory).title === 'string' && typeof (x as ExerciseCategory)._id === 'string';
 
   const safeCategories = exerciseCategories.filter(isCategory);
 

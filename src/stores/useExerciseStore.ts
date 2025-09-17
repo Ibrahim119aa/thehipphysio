@@ -1,12 +1,12 @@
 // stores/useExerciseStore.ts
 import { create } from 'zustand';
-import { ExerciseState, Exercise } from '@/lib/types';
+import { ExerciseState } from '@/lib/types';
 // Assume you have a config file for your base API URI
 // import config from '@/config/config'; 
 import { toast } from 'sonner';
 import config from '@/config/config';
 
-export const useExerciseStore = create<ExerciseState>((set, get) => ({
+export const useExerciseStore = create<ExerciseState>((set) => ({
   exercises: [],
   loading: false,
   error: null,
@@ -24,9 +24,9 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
       }
 
       set({ exercises: result.data, loading: false });
-    } catch (err: any) {
-      toast.error(err.message);
-      set({ error: err.message, loading: false });
+    } catch (err: unknown) {
+      toast.error((err as Error).message);
+      set({ error: (err as Error).message, loading: false });
     }
   },
 
@@ -50,9 +50,9 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
       // Add the new exercise to the start of the list
       set({ loading: false });
       return true;
-    } catch (err: any) {
-      toast.error(err.message);
-      set({ error: err.message, loading: false });
+    } catch (err: unknown) {
+      toast.error((err as Error).message);
+      set({ error: (err as Error).message, loading: false });
       return false;
     }
   },
@@ -81,9 +81,9 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
         loading: false
       }));
       return true;
-    } catch (err: any) {
-      toast.error(err.message);
-      set({ error: err.message, loading: false });
+    } catch (err: unknown) {
+      toast.error((err as Error).message);
+      set({ error: (err as Error).message, loading: false });
       return false;
     }
   },
@@ -109,9 +109,9 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
         exercises: state.exercises.filter(ex => ex._id !== exerciseId),
         loading: false
       }));
-    } catch (err: any) {
-      toast.error(err.message);
-      set({ error: err.message, loading: false });
+    } catch (err: unknown) {
+      toast.error((err as Error).message);
+      set({ error: (err as Error).message, loading: false });
     }
   },
 }));

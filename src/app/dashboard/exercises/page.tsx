@@ -77,7 +77,7 @@ export default function ExercisesPage() {
 
   const handleOpenModal = (exercise: Exercise | null = null) => {
     setSelectedExercise(exercise);
-    setModalKey(k => k + 1); 
+    setModalKey(k => k + 1);
     setIsModalOpen(true);
   };
 
@@ -161,7 +161,7 @@ export default function ExercisesPage() {
         onActionButtonClick={() => handleOpenModal()}
       />
 
-      <DataTable
+      <DataTable<Exercise>
         columns={columns}
         data={exercises}
         searchKey="name"

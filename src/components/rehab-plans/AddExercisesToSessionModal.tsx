@@ -1,11 +1,11 @@
 'use client';
-
+import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Form, FormControl, FormField, FormItem, FormLabel,
+  Form, FormControl, FormLabel,
 } from '@/components/ui/form';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -36,8 +36,11 @@ export function AddExercisesToSessionModal({
   const [selected, setSelected] = useState<string[]>([]);
 
   useEffect(() => {
-    if (isOpen && (!exercises || exercises.length === 0)) fetchExercises();
-  }, [isOpen, exercises?.length, fetchExercises]);
+    if (isOpen && (!exercises || exercises.length === 0)) {
+      fetchExercises();
+    }
+  }, [isOpen, exercises, fetchExercises]);
+
 
   useEffect(() => {
     if (!isOpen) {
@@ -55,7 +58,7 @@ export function AddExercisesToSessionModal({
     return list.filter((e) => {
       const inName = e.name?.toLowerCase().includes(q);
       const inTags = (e.tags ?? []).join(',').toLowerCase().includes(q);
-      const inCat  = (e.category?.title ?? '').toLowerCase().includes(q);
+      const inCat = (e.category?.title ?? '').toLowerCase().includes(q);
       return inName || inTags || inCat;
     });
   }, [exercises, query]);
@@ -108,7 +111,7 @@ export function AddExercisesToSessionModal({
                         onCheckedChange={(checked) => toggle(ex._id, Boolean(checked))}
                       />
                       {ex.thumbnailUrl ? (
-                        <img src={ex.thumbnailUrl} alt={ex.name} className="h-12 w-12 rounded object-cover border" />
+                        <Image width={48} height={48} src={ex.thumbnailUrl} alt={ex.name} className="h-12 w-12 rounded object-cover border" />
                       ) : (
                         <div className="h-12 w-12 rounded bg-muted grid place-items-center text-xs text-muted-foreground">
                           No image

@@ -1,8 +1,9 @@
-'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+'use client';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card'; // if you have it; otherwise use a div with borders
+
 import { PageHeader } from '@/components/common/PageHeader';
 import { useRehabPlanStore } from '@/stores/useRehabPlanStore';
 import { usePlanScheduleStore } from '@/stores/usePlanScheduleStore';
@@ -27,8 +28,8 @@ export default function RehabPlanSessionsPage() {
   // modal for add exercises to a specific session
   const [targetSessionId, setTargetSessionId] = useState<string | null>(null);
   const [targetSessionTitle, setTargetSessionTitle] = useState<string | undefined>(undefined);
-  const [alreadyIn,   setAlreadyIn]   = useState<string[]>([]);
-  const [isAddOpen,   setIsAddOpen]   = useState(false);
+  const [alreadyIn, setAlreadyIn] = useState<string[]>([]);
+  const [isAddOpen, setIsAddOpen] = useState(false);
 
   useEffect(() => {
     if (!plans?.length) fetchPlans();
@@ -38,18 +39,14 @@ export default function RehabPlanSessionsPage() {
     if (selectedPlanId) fetchSchedule(selectedPlanId);
   }, [selectedPlanId, fetchSchedule]);
 
-  // choose first plan by default (once plans load)
+
   useEffect(() => {
     if (!selectedPlanId && (plans ?? []).length > 0) {
-      setSelectedPlanId((plans![0] as RehabPlan)._id);
+      setSelectedPlanId((plans[0] as RehabPlan)._id);
     }
-  }, [plans?.length, selectedPlanId]);
-
-  const headerTitle = useMemo(() => {
-    const p = (plans ?? []).find((x) => x._id === selectedPlanId) as RehabPlan | undefined;
-    if (!p) return 'Plan Sessions';
-    return p.phase ? `${p.name} — ${p.phase}` : p.name;
   }, [plans, selectedPlanId]);
+
+
 
   const openAddExercises = (sessionId: string, title: string, existing: string[]) => {
     setTargetSessionId(sessionId);
@@ -79,7 +76,7 @@ export default function RehabPlanSessionsPage() {
       <PageHeader
         title="Plan Sessions"
         actionButtonText=""
-        onActionButtonClick={() => {}}
+        onActionButtonClick={() => { }}
       />
 
       {/* Plan picker */}
@@ -91,9 +88,9 @@ export default function RehabPlanSessionsPage() {
           onChange={(e) => setSelectedPlanId(e.target.value)}
           disabled={plansLoading}
         >
-          {(plans ?? []).map((p: any) => (
-            <option key={p._id} value={p._id}>
-              {p.phase ? `${p.name} — ${p.phase}` : p.name}
+          {(plans ?? []).map((p: unknown) => (
+            <option key={(p as RehabPlan)._id} value={(p as RehabPlan)._id}>
+              {(p as RehabPlan).phase ? `${(p as RehabPlan).name} — ${(p as RehabPlan).phase}` : (p as RehabPlan).name}
             </option>
           ))}
         </select>
@@ -146,7 +143,9 @@ export default function RehabPlanSessionsPage() {
                               {s.exercises.map((ex) => (
                                 <div key={ex._id} className="flex items-center gap-3 rounded-md border p-2">
                                   {ex.thumbnailUrl ? (
-                                    <img
+                                    <Image
+                                    width={48}
+                                    height={48}
                                       src={ex.thumbnailUrl}
                                       alt={ex.name}
                                       className="h-12 w-12 rounded object-cover border"

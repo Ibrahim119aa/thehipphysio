@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -67,8 +68,9 @@ export function EducationalVideoModal({
   // Map initial categories (object[] or id[]) to id[]
   const initialCategoryIds = useMemo<string[]>(() => {
     if (!initialData?.categories) return [];
-    const arr = initialData.categories as any[];
-    return arr.map((c) => (typeof c === 'string' ? c : c?._id)).filter(Boolean);
+    type CategoryWithId = { _id: string };
+    const arr = initialData.categories as (string | CategoryWithId)[];
+    return arr.map((c) => (typeof c === 'string' ? c : c._id)).filter(Boolean);
   }, [initialData]);
 
   useEffect(() => {
