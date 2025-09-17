@@ -2,9 +2,9 @@
 import { create } from 'zustand';
 import { ExerciseCategory } from '@/lib/types';
 import { toast } from 'sonner';
-
+import config from '@/config/config';
 // This would ideally come from a central config file
-const API_BASE_URL = 'http://localhost:4000'; 
+const API_BASE_URL = 'http://localhost:4200'; 
 
 interface CategoryState {
     categories: ExerciseCategory[];
@@ -23,7 +23,7 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
         
     set({ loading: true, error: null });
       try {
-        const response = await fetch(`${API_BASE_URL}/api/exercise-categories`, {
+        const response = await fetch(`${config.baseUri}/api/exercise-categories`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include'

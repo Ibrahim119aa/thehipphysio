@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Home, Users, Dumbbell, BookHeadphones, FileVideo, Send, Settings, ChevronDown, Menu, X } from "lucide-react";
+import { Home, Users, Dumbbell, BookHeadphones, FileVideo, Send, Settings, ChevronDown, Menu, X, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useUserStore } from "@/stores/useUserStore";
 
 // Navigation structure with dropdown
 const navItems = [
@@ -31,19 +33,39 @@ const navItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { loading, logout } = useUserStore();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({});
 
-  // Expand menu if current route matches any child
-useEffect(() => {
-  const newExpandedMenus: { [key: string]: boolean } = {};
-  navItems.forEach((item) => {
-    if (item.children) {
-      newExpandedMenus[item.label] = false;
+  const router = useRouter();
+  const handleLogout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const success = await logout();
+    localStorage.removeItem("token");
+
+    if (success) {
+      router.push('/');
     }
-  });
-  setExpandedMenus(newExpandedMenus);
-}, []);
+  };
+  const checkLogin = () => {
+    if (localStorage.getItem("token")) {
+      return true;
+    }
+    return false;
+  }
+  // Expand menu if current route matches any child
+  useEffect(() => {
+    const newExpandedMenus: { [key: string]: boolean } = {};
+    navItems.forEach((item) => {
+      if (item.children) {
+        newExpandedMenus[item.label] = false;
+      }
+    });
+    setExpandedMenus(newExpandedMenus);
+    if (!checkLogin()) {
+      router.push("/");
+    }
+  }, []);
 
   const toggleMenu = (label: string) => {
     setExpandedMenus((prev) => ({ ...prev, [label]: !prev[label] }));
@@ -70,20 +92,18 @@ useEffect(() => {
               {/* Dropdown Parent */}
               <button
                 onClick={() => toggleMenu(item.label)}
-                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm rounded-lg transition-colors ${
-                  expandedMenus[item.label]
-                    ? "bg-brand text-white"
-                    : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                }`}
+                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm rounded-lg transition-colors ${expandedMenus[item.label]
+                  ? "bg-brand text-white"
+                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                  }`}
               >
                 <div className="flex items-center">
                   <item.icon className="w-5 h-5 mr-3" />
                   {item.label}
                 </div>
                 <ChevronDown
-                  className={`w-4 h-4 transform transition-transform ${
-                    expandedMenus[item.label] ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 transform transition-transform ${expandedMenus[item.label] ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -95,11 +115,10 @@ useEffect(() => {
                       key={child.href}
                       href={child.href}
                       onClick={() => setSidebarOpen(false)}
-                      className={`block text-sm px-2 py-1 rounded-md transition-colors ${
-                        pathname === child.href
-                          ? "bg-brand text-white"
-                          : "text-gray-400 hover:bg-gray-700 hover:text-white"
-                      }`}
+                      className={`block text-sm px-2 py-1 rounded-md transition-colors ${pathname === child.href
+                        ? "bg-brand text-white"
+                        : "text-gray-400 hover:bg-gray-700 hover:text-white"
+                        }`}
                     >
                       {child.label}
                     </Link>
@@ -112,17 +131,26 @@ useEffect(() => {
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center px-4 py-2.5 text-sm rounded-lg transition-colors ${
-                pathname === item.href
-                  ? "bg-brand text-white"
-                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
-              }`}
+              className={`flex items-center px-4 py-2.5 text-sm rounded-lg transition-colors ${pathname === item.href
+                ? "bg-brand text-white"
+                : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                }`}
             >
               <item.icon className="w-5 h-5 mr-3" />
               {item.label}
             </Link>
           )
         )}
+        <Link
+          href={""}
+          onClick={handleLogout}
+          className={`flex items-center px-4 py-2.5 text-sm rounded-lg transition-colors text-gray-300 hover:bg-gray-700 hover:text-white
+                }`}
+        >
+          <LogOut className="w-5 h-5 mr-3" />
+
+          Logout
+        </Link>
       </nav>
     </div>
   );
@@ -131,9 +159,8 @@ useEffect(() => {
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       {/* Mobile Sidebar */}
       <div
-        className={`fixed inset-0 z-30 transition-transform transform ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } bg-gray-800 md:hidden`}
+        className={`fixed inset-0 z-30 transition-transform transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } bg-gray-800 md:hidden`}
       >
         <SidebarContent />
       </div>

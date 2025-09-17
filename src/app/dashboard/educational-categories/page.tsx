@@ -106,8 +106,8 @@ export default function EducationalCategoriesPage() {
 
   const handleDeleteConfirm = async () => {
     if (selectedCategory) {
-      await deleteCategory(selectedCategory._id); 
-      await fetchCategories();                    
+      await deleteCategory(selectedCategory._id);
+      await fetchCategories();
     }
     handleCloseConfirm();
   };
@@ -116,18 +116,18 @@ export default function EducationalCategoriesPage() {
   const handleFormSubmit = async (payload: {
     title: string;
     description: string;
-  }) => {                                            
-    setSaving(true);                                 
+  }) => {
+    setSaving(true);
     try {
       if (selectedCategory) {
         await updateCategory({ _id: selectedCategory._id, ...payload });
       } else {
-        await addCategory(payload);                  
+        await addCategory(payload);
       }
-      await fetchCategories();                       
-      handleCloseModal();                            
+      await fetchCategories();
+      handleCloseModal();
     } finally {
-      setSaving(false);                              
+      setSaving(false);
     }
   };
 

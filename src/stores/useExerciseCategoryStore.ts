@@ -33,6 +33,8 @@ export const useExerciseCategoryStore = create<State>((set, get) => ({
       });
 
       const result = await res.json().catch(() => ({} as any));
+      console.log("this is exercise category");
+      
       console.log(result);
       
       if (!result.success) {

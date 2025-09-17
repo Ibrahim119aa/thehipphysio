@@ -63,7 +63,7 @@ export interface UserState {
   deleteUser: (id: string) => Promise<void>;
 
   login: (email: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
+  logout: () => Promise<boolean>;
 
   fetchUsersPickList: () => Promise<void>;
 }
@@ -196,6 +196,7 @@ export const useUserStore = create<UserState>((set) => ({
   },
 
   // AUTH
+
   login: async (email, password) => {
     try {
       const res = await fetch(`${config.baseUri}/api/user/admin/login`, {
@@ -210,6 +211,7 @@ export const useUserStore = create<UserState>((set) => ({
         toast.error(result?.message || 'Login failed.');
         return false;
       }
+      localStorage.setItem("token", result.token);
       return true;
     } catch {
       toast.error('Login failed.');
@@ -228,11 +230,13 @@ export const useUserStore = create<UserState>((set) => ({
 
       if (!result?.success) {
         toast.error(result?.message || 'Logout failed.');
-        return;
+        return false;
       }
       toast.success('Logout successful!');
+      return true;
     } catch {
       toast.error('Logout failed. Please try again.');
+      return false;
     }
   },
 

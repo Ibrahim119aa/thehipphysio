@@ -29,17 +29,17 @@ export const useEducationalCategoryStore = create<State>((set, get) => ({
   fetchCategories: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${config.baseUri}/api/educational-videos/category`,{
+      const res = await fetch(`${config.baseUri}/api/educational-videos/category`, {
         credentials: 'include',
       });
       const result = await res.json();
-      
+
       if (!res.ok || !result?.success) {
         toast.error(result?.message || 'Failed to fetch categories');
         set({ loading: false });
         return;
       }
-      
+
       set({ categories: result.categories ?? [], loading: false });
     } catch (err: any) {
       toast.error(err.message);

@@ -31,6 +31,8 @@ export default function NotificationsPage() {
 
   const [audienceType, setAudienceType] = useState<'all' | 'selected'>('all');
   const [userSearch, setUserSearch] = useState('');
+  const [date, setDate] = useState('');
+  const [type, setType] = useState('');
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -68,7 +70,11 @@ export default function NotificationsPage() {
       body,
       audienceType,
       userIds: audienceType === 'selected' ? selectedUserIds : undefined,
+      ...(type === "custom"
+        ? { scheduleAt: date }
+        : '')
     };
+
 
     if (payload.audienceType === 'selected' && !payload.userIds?.length) {
       alert('Please select at least one user.');
@@ -83,7 +89,7 @@ export default function NotificationsPage() {
     setUserSearch('');
     setSelectedUserIds([]);
   };
-  
+
   return (
     <div className="space-y-6">
       <PageHeader title="Push Notifications" />
@@ -98,6 +104,46 @@ export default function NotificationsPage() {
               <Label htmlFor="title">Title</Label>
               <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Weekly Motivation" />
             </div>
+            <div className="space-y-2">
+              <Label>Schedule At :</Label>
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="type"
+                    value="now"
+                    checked={type === 'now'}
+                    onChange={() => setType('now')}
+                  />
+                  <span>Now</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="type"
+                    value="custom"
+                    checked={type === 'custom'}
+                    onChange={() => setType('custom')}
+                  />
+                  <span>Custom Date</span>
+                </label>
+              </div>
+            </div>
+            {
+              type == "custom" && (
+                <div className="space-y-2">
+                  <Label htmlFor="date">Date</Label>
+                  <Input
+                    type="datetime-local"
+                    id="dateTime"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                  />
+
+                </div>
+              )
+            }
+
             <div className="space-y-2">
               <Label htmlFor="body">Message</Label>
               <Textarea id="body" value={body} onChange={(e) => setBody(e.target.value)} placeholder="Your message here..." />
@@ -129,6 +175,7 @@ export default function NotificationsPage() {
                 </label>
               </div>
             </div>
+
 
             {/* Picker */}
             {audienceType === 'selected' && (
