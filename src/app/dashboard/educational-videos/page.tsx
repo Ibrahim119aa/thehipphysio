@@ -133,7 +133,7 @@ export default function EducationalVideosPage() {
       header: 'Duration',
       cell: (v) => {
         const minutes = Math.floor(v.duration);
-        return <span>{minutes} min</span>;
+        return <span>{minutes} min {v.thumbnailUrl}</span>;
       },
     },
     {
@@ -144,7 +144,7 @@ export default function EducationalVideosPage() {
           width={64}
           height={40}
           src={v.thumbnailUrl}
-          alt={v.title}
+          alt={v.thumbnailUrl}
           className="h-10 w-16 rounded object-cover border"
         />
       ),
