@@ -25,8 +25,12 @@ const formSchema = z.object({
   // optional if server derives duration from video
   duration: z.coerce.number().optional(),
   // files
-  video: z.any().optional(),
-  thumbnail: z.any().optional(),
+  video: z.any().refine((file) => file != null, {
+    message: "Video is required.",
+  }),
+  thumbnail: z.any().refine((file) => file != null, {
+    message: "Thumbnail is required.",
+  }),
 });
 
 type FormInput = z.input<typeof formSchema>;
@@ -129,7 +133,7 @@ export function EducationalVideoModal({
 
     onSubmit(formData);
   };
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="sm:max-w-[700px] flex flex-col max-h-[90vh]">

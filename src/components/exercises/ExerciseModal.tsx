@@ -31,8 +31,12 @@ const formSchema = z.object({
   difficulty: z.enum(['Beginner', 'Medium', 'Advanced']),
   estimatedDuration: z.coerce.number().optional(),
   // File inputs come in as FileList (or undefined)
-  video: z.any().optional(),
-  thumbnail: z.any().optional(),
+  video: z.any().refine((file) => file != null, {
+    message: "Video is required.",
+  }),
+  thumbnail: z.any().refine((file) => file != null, {
+    message: "Thumbnail is required.",
+  }),
 });
 
 // Very important with z.coerce: type the form with the **input** type
