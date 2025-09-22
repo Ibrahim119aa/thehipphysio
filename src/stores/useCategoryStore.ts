@@ -19,7 +19,9 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
   error: null,
   fetchCategories: async () => {
     // Avoid refetching if data already exists in the store
-    if (get().categories.length > 0) return; 
+    
+    // if (get().categories.length > 0) return; 
+    
         
     set({ loading: true, error: null });
       try {
@@ -28,7 +30,7 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include'
         });
-        
+      
         // if (!response.ok) {
         //   throw new Error('Failed to fetch exercise categories');
         // }

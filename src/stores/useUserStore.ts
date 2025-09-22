@@ -223,6 +223,8 @@ export const useUserStore = create<UserState>((set) => ({
         body: JSON.stringify({ email, password }),
       });
 
+      
+
       const result = await res.json().catch(() => ({} as unknown));
       if (!result?.success) {
         toast.error(result?.message || 'Login failed.');
