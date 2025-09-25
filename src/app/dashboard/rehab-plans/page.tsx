@@ -67,12 +67,33 @@ function RowActions({
     </DropdownMenu>
   );
 }
-
+type AddPlanInput = {
+  name: string;
+  planType: "free" | "paid";
+  totalWeeks: number;
+  description?: string;
+  weekStart: number;
+  weekEnd: number;
+  category: string[];
+  equipment: string[];
+};
+type UpdatePlanInput = {
+  _id: string;
+  name: string;
+  planType: "free" | "paid";
+  totalWeeks: number;
+  description?: string;
+  weekStart: number;
+  weekEnd: number;
+  category: string[];
+  equipment: string[];
+};
 export default function RehabPlansPage() {
   const {
     plans,
     loading,
     fetchPlans,
+
     addPlan,
     updatePlan,
     deletePlan,
@@ -98,7 +119,12 @@ export default function RehabPlansPage() {
 
   // Create/Edit
   const openCreate = () => { setSelectedPlan(null); setIsPlanModalOpen(true); };
-  const openEdit = (plan: RehabPlan) => { setSelectedPlan(plan); setIsPlanModalOpen(true); };
+  const openEdit = (plan: RehabPlan) => {
+    console.log("this is edit plan");
+    console.log(plan);
+    setSelectedPlan(plan);
+    setIsPlanModalOpen(true);
+  };
   const closePlanModal = () => { setIsPlanModalOpen(false); setSelectedPlan(null); };
 
   // Add Session
@@ -130,20 +156,14 @@ export default function RehabPlansPage() {
 
   // Submit plan (create/update)
   const handlePlanSubmit = async (payload: Record<string, unknown>) => {
+    console.log("this is payload");
+    console.log(payload);
     const ok = selectedPlan
       ? await updatePlan({
-          _id: selectedPlan._id,
-          name: payload.name as string,
-          type: payload.type as "Free" | "Paid",
-          durationWeeks: payload.durationWeeks as number,
-          description: payload.description as string | undefined,
-        })
-      : await addPlan({
-          name: payload.name as string,
-          type: payload.type as "Free" | "Paid",
-          durationWeeks: payload.durationWeeks as number,
-          description: payload.description as string | undefined,
-        });
+        _id: selectedPlan._id,
+        ...payload
+      } as UpdatePlanInput)
+      : await addPlan(payload as AddPlanInput);
 
     if (ok) closePlanModal();
   };

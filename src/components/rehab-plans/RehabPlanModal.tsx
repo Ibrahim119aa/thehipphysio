@@ -18,7 +18,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RehabPlan } from '@/lib/types';
 import { useRehabPlanCategoryStore } from '@/stores/rehabPlanCategories';
-
+import { useRehabPlanEquipmentStore } from '@/stores/rehabPlanEquipments';
 const optionalNumString = z.union([z.string(), z.number()]).optional();
 
 const schema = z.object({
@@ -67,15 +67,22 @@ export function RehabPlanModal({
   /** categories store */
   const { fetchRehabPlanCategories, rehabPlanCategories } = useRehabPlanCategoryStore();
 
+  /** equipments store */
+  const { fetchRehabPlanEquipment, rehabPlanEquipment } = useRehabPlanEquipmentStore();
+
   /** local selection state for category IDs (checkbox list) */
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedEquipmentIds, setSelectedEquipmentIds] = useState<string[]>([]);
 
 
   useEffect(() => {
     if (isOpen && (!rehabPlanCategories || rehabPlanCategories.length === 0)) {
       fetchRehabPlanCategories();
     }
-  }, [isOpen, rehabPlanCategories, fetchRehabPlanCategories]);
+    if (isOpen && (!rehabPlanEquipment || rehabPlanEquipment.length === 0)) {
+      fetchRehabPlanEquipment();
+    }
+  }, [isOpen, rehabPlanCategories, fetchRehabPlanCategories, rehabPlanEquipment, fetchRehabPlanEquipment]);
 
 
   const form = useForm<FormInput>({
@@ -122,6 +129,7 @@ export function RehabPlanModal({
       } as FormInput);
 
       setSelectedIds((initialData.categories ?? []).map((c) => c._id));
+      setSelectedEquipmentIds((initialData.equipment ?? []).map((c) => c._id));
     } else {
       form.reset({
         name: '',
@@ -136,7 +144,10 @@ export function RehabPlanModal({
       } as FormInput);
 
       setSelectedIds([]);
+      setSelectedEquipmentIds([]);
     }
+    console.log("this is initial data");
+    console.log(initialData);
   }, [initialData, form, isOpen]);
 
   /** checkbox toggle helper */
@@ -146,6 +157,12 @@ export function RehabPlanModal({
       return prev.filter((x) => x !== id);
     });
   };
+  const toggleEquipment = (id: string, checked: boolean) => {
+    setSelectedEquipmentIds((prev) => {
+      if (checked) return prev.includes(id) ? prev : [...prev, id];
+      return prev.filter((x) => x !== id);
+    });
+  }
 
   /** submit => map to API payload (note: title -> name, selectedIds -> category) */
   const handleSubmitForm: SubmitHandler<FormInput> = (values) => {
@@ -163,6 +180,7 @@ export function RehabPlanModal({
       weekEnd: toNum(values.weekEnd),
       planDurationInWeeks: toNum(values.planDurationInWeeks),
       category: selectedIds,
+      equipment: selectedEquipmentIds,
     };
 
     onSubmit(payload);
@@ -264,6 +282,40 @@ export function RehabPlanModal({
                                 checked={selectedIds.includes(c._id)}
                                 onCheckedChange={(checked) =>
                                   toggleCategory(c._id, Boolean(checked))
+                                }
+                              />
+                              <span className="text-sm">{c.title}</span>
+                            </label>
+                          ))
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="name" // dummy hook to keep RHF tree happy; selection is local state
+              render={() => (
+                <FormItem>
+                  <FormLabel>Equipments</FormLabel>
+                  <FormControl>
+                    <ScrollArea className="h-36 rounded-md border p-3">
+                      <div className="space-y-2">
+                        {(rehabPlanEquipment ?? []).length === 0 ? (
+                          <div className="text-sm text-muted-foreground">
+                            No equipments found.
+                          </div>
+                        ) : (
+                          (rehabPlanEquipment ?? []).map((c) => (
+                            <label key={c._id} className="flex items-center gap-2">
+                              <Checkbox
+                                checked={selectedEquipmentIds.includes(c._id)}
+                                onCheckedChange={(checked) =>
+                                  toggleEquipment(c._id, Boolean(checked))
                                 }
                               />
                               <span className="text-sm">{c.title}</span>

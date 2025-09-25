@@ -39,7 +39,7 @@ export interface Exercise {
   thumbnailUrl: string;
   reps: string;
   sets: string;
-  category: ExerciseCategory; 
+  category: ExerciseCategory;
   tags: string[];
   bodyPart: string;
   difficulty: 'Beginner' | 'Medium' | 'Advanced';
@@ -78,6 +78,7 @@ export interface RehabPlan {
   totalMinutes?: number;
 
   categories?: Array<{ _id: string; title: string }>;
+  equipment?: Array<{ _id: string; title: string }>;
 }
 
 

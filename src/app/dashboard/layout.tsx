@@ -23,6 +23,7 @@ const navItems = [
     children: [
       { href: "/dashboard/rehab-plans", label: "Rehab Plans" },
       { href: "/dashboard/plan-categories", label: "Categories" },
+      { href: "/dashboard/equipments", label: "Equipments" },
       { href: "/dashboard/rehab-plans/sessions", label: "Session Exercises" },
     ],
   },

@@ -4,9 +4,9 @@ import { toast } from 'sonner';
 import config from '@/config/config';
 import { RehabPlan } from '@/lib/types';
 
-type AssignPayload = { 
-  planId: string; 
-  userId: string 
+type AssignPayload = {
+  planId: string;
+  userId: string
 };
 
 type CreateSessionArgs = {
@@ -23,8 +23,8 @@ type RehabPlanStore = {
   error: string | null;
 
   fetchPlans: () => Promise<void>;
-  addPlan: (payload: { name: string; type: 'Free' | 'Paid'; durationWeeks: number; description?: string }) => Promise<boolean>;
-  updatePlan: (payload: { _id: string; name: string; type: 'Free' | 'Paid'; durationWeeks: number; description?: string }) => Promise<boolean>;
+  addPlan: (payload: { name: string; planType: 'free' | 'paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[] }) => Promise<boolean>;
+  updatePlan: (payload: { _id: string; name: string; planType: 'free' | 'paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[] }) => Promise<boolean>;
   deletePlan: (id: string) => Promise<void>;
   assignPlanToUser: (payload: AssignPayload) => Promise<boolean>;
   createSessionAndAttach: (args: CreateSessionArgs) => Promise<boolean>;
@@ -43,7 +43,7 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
         credentials: 'include',
       });
       const result = await res.json();
-      
+
       if (!res.ok || result?.success === false) {
         toast.error(result?.message || 'Failed to fetch rehab plans');
         set({ loading: false });
@@ -61,6 +61,9 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
   addPlan: async (payload) => {
     set({ loading: true, error: null });
     try {
+      console.log("this is add plan payload");
+      console.log(payload);
+
       const res = await fetch(`${config.baseUri}/api/rehab-plans`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -169,7 +172,7 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       set({ error: (err as Error).message || 'Failed to delete rehab plan', loading: false });
     }
   },
-  
+
   // POST /api/rehab-plans/:planId/assign  { userId }
   assignPlanToUser: async ({ planId, userId }) => {
     set({ loading: true, error: null });
@@ -200,7 +203,7 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
 
   createSessionAndAttach: async ({ planId, title, weekNumber, dayNumber, exerciseIds }) => {
 
-    if(exerciseIds.length === 0) {
+    if (exerciseIds.length === 0) {
       toast.error('No exercise provided');
       return false;
     }
@@ -222,15 +225,15 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       });
 
       const data1 = await res1.json().catch(() => ({} as unknown));
-      
+
       if (!res1.ok || data1?.success === false) {
         toast.error(data1?.message || 'Failed to create session');
         set({ loading: false });
         return false;
       }
-      
+
       const sessionId: string | undefined = data1?.data?._id ?? data1?.session?._id ?? data1?._id;
-      
+
       if (!sessionId) {
         toast.error('Server did not return session id');
         set({ loading: false });
@@ -254,7 +257,7 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       });
 
       const data2 = await res2.json().catch(() => ({} as unknown));
-      
+
       if (!res2.ok || data2?.success === false) {
         toast.error(data2?.message || 'Failed to attach session to plan');
         set({ loading: false });
@@ -262,16 +265,16 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       }
 
       toast.success(data2?.message || 'Session added to plan!');
-      
+
       await get().fetchPlans(); // refresh list
-      
+
       set({ loading: false });
       return true;
     } catch (err: unknown) {
       toast.error((err as Error).message || 'Failed to add session');
       set({ error: (err as Error).message || 'Failed to add session', loading: false });
       return false;
+    }
   }
-}
 
 }));
