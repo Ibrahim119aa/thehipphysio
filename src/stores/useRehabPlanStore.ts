@@ -16,7 +16,11 @@ type CreateSessionArgs = {
   dayNumber: number;
   exerciseIds: string[];
 };
-
+type CreateRehabPlanEducationVideoArgs = {
+  planId: string;
+  title: string;
+  videoIds: string[];
+};
 type RehabPlanStore = {
   plans: RehabPlan[];
   loading: boolean;
@@ -28,6 +32,7 @@ type RehabPlanStore = {
   deletePlan: (id: string) => Promise<void>;
   assignPlanToUser: (payload: AssignPayload) => Promise<boolean>;
   createSessionAndAttach: (args: CreateSessionArgs) => Promise<boolean>;
+  createRehabPlanEducationVideo: (args: CreateRehabPlanEducationVideoArgs) => Promise<boolean>;
 };
 
 export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
@@ -201,6 +206,78 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
     }
   },
 
+  createRehabPlanEducationVideo: async ({ planId, title, videoIds }) => {
+
+    if (videoIds.length === 0) {
+      toast.error('No video provided');
+      return false;
+    }
+
+
+    set({ loading: true, error: null });
+    try {
+
+      const res1 = await fetch(`${config.baseUri}/api/rehab-plans/educational-video`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          planId: planId,
+          videoId: videoIds,
+        }),
+      });
+
+      const data1 = await res1.json().catch(() => ({} as unknown));
+
+      if (!res1.ok || data1?.success === false) {
+        toast.error(data1?.message || 'Failed to create session');
+        set({ loading: false });
+        return false;
+      }
+
+      // const sessionId: string | undefined = data1?.data?._id ?? data1?.session?._id ?? data1?._id;
+
+      // if (!sessionId) {
+      //   toast.error('Server did not return session id');
+      //   set({ loading: false });
+      //   return false;
+      // }
+
+      // const res2 = await fetch(`${config.baseUri}/api/rehab-plans/${planId}`, {
+      //   method: 'PUT',
+      //   credentials: 'include',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     schedule: [
+      //       {
+      //         sessions: [sessionId],
+      //       },
+      //     ],
+      //   }),
+      // });
+
+      // const data2 = await res2.json().catch(() => ({} as unknown));
+
+      // if (!res2.ok || data2?.success === false) {
+      //   toast.error(data2?.message || 'Failed to attach session to plan');
+      //   set({ loading: false });
+      //   return false;
+      // }
+
+      toast.success(data1?.message || 'Session added to plan!');
+
+      await get().fetchPlans(); // refresh list
+
+      set({ loading: false });
+      return true;
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to add session');
+      set({ error: (err as Error).message || 'Failed to add session', loading: false });
+      return false;
+    }
+  },
+
   createSessionAndAttach: async ({ planId, title, weekNumber, dayNumber, exerciseIds }) => {
 
     if (exerciseIds.length === 0) {
@@ -276,5 +353,7 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       return false;
     }
   }
+
+
 
 }));

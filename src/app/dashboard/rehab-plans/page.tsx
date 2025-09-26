@@ -22,6 +22,7 @@ import { AddSessionModal } from '@/components/rehab-plans/AddSessionModal';
 import { useRehabPlanStore } from '@/stores/useRehabPlanStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { RehabPlan } from '@/lib/types';
+import { AddEducationalVideoModal } from '@/components/rehab-plans/AddEducationalVideoModal';
 
 const isPlan = (x: unknown): x is RehabPlan => !!x && typeof (x as RehabPlan)._id === 'string';
 
@@ -30,12 +31,14 @@ function RowActions({
   plan,
   onEdit,
   onAddSession,
+  openAddEducationalVideo,
   onAssign,
   onDelete,
 }: {
   plan: RehabPlan;
   onEdit: (p: RehabPlan) => void;
   onAddSession: (p: RehabPlan) => void;
+  openAddEducationalVideo: (p: RehabPlan) => void;
   onAssign: (p: RehabPlan) => void;
   onDelete: (p: RehabPlan) => void;
 }) {
@@ -53,6 +56,9 @@ function RowActions({
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => { setOpen(false); onAddSession(plan); }}>
           Add Session
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => { setOpen(false); openAddEducationalVideo(plan); }}>
+          Add Educational Video
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => { setOpen(false); onAssign(plan); }}>
           Assign to User
@@ -98,6 +104,7 @@ export default function RehabPlansPage() {
     updatePlan,
     deletePlan,
     assignPlanToUser,
+    createRehabPlanEducationVideo,
     createSessionAndAttach, // session-first flow
   } = useRehabPlanStore();
 
@@ -107,6 +114,7 @@ export default function RehabPlansPage() {
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isAddSessionOpen, setIsAddSessionOpen] = useState(false);
+  const [isAddEducationalVideoOpen, setIsAddEducationalVideoOpen] = useState(false);
 
   const [selectedPlan, setSelectedPlan] = useState<RehabPlan | null>(null);
 
@@ -130,12 +138,30 @@ export default function RehabPlansPage() {
   // Add Session
   const openAddSession = (plan: RehabPlan) => { setSelectedPlan(plan); setIsAddSessionOpen(true); };
   const closeAddSession = () => { setIsAddSessionOpen(false); setSelectedPlan(null); };
+
+
+  const openAddEducationalVideo = (plan: RehabPlan) => { setSelectedPlan(plan); setIsAddEducationalVideoOpen(true); };
+  const closeAddEducationalVideo = () => { setIsAddEducationalVideoOpen(false); setSelectedPlan(null); };
+
   const handleAddSessionSubmit = async (p: {
     weekNumber: number; dayNumber: number; title: string; exerciseIds: string[];
   }) => {
     if (!selectedPlan) return;
     const ok = await createSessionAndAttach({ planId: selectedPlan._id, ...p });
     if (ok) closeAddSession();
+  };
+
+
+  const handleAddEducationalVideoSubmit = async (p: {
+    title: string; exerciseIds: string[];
+  }) => {
+    console.log("this is submit plan");
+    console.log(selectedPlan?._id);
+    console.log(p);
+
+    if (!selectedPlan) return;
+    const ok = await createRehabPlanEducationVideo({ planId: selectedPlan._id, title: p.title, videoIds: p.exerciseIds });
+    if (ok) closeAddEducationalVideo();
   };
 
   // Assign
@@ -216,6 +242,7 @@ export default function RehabPlansPage() {
           plan={row}
           onEdit={openEdit}
           onAddSession={openAddSession}
+          openAddEducationalVideo={openAddEducationalVideo}
           onAssign={openAssign}
           onDelete={openDelete}
         />
@@ -259,6 +286,13 @@ export default function RehabPlansPage() {
         onClose={closeAddSession}
         plan={selectedPlan}
         onSubmit={handleAddSessionSubmit}
+        isLoading={loading}
+      />
+      <AddEducationalVideoModal
+        isOpen={isAddEducationalVideoOpen}
+        onClose={closeAddEducationalVideo}
+        plan={selectedPlan}
+        onSubmit={handleAddEducationalVideoSubmit}
         isLoading={loading}
       />
 
