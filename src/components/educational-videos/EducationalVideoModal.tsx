@@ -25,9 +25,37 @@ const formSchema = z.object({
   // optional if server derives duration from video
   duration: z.coerce.number().optional(),
   // files
-  video: z.any().refine((file) => file != null, {
-    message: "Video is required.",
-  }),
+  video: z
+    .any()
+    .refine((file) => file && file.length > 0, {
+      message: 'Video is required.',
+    })
+    .refine(
+      (file) => file && file[0]?.type === 'video/mp4',
+      { message: 'Only MP4 files are allowed.' }
+    )
+    .refine(
+      async (file) => {
+        if (!file || !file[0]) return false;
+
+        // Check resolution
+        const fl = file[0] as File;
+        const url = URL.createObjectURL(fl);
+
+        return new Promise<boolean>((resolve) => {
+          const video = document.createElement('video');
+          video.preload = 'metadata';
+          video.src = url;
+          video.onloadedmetadata = () => {
+            URL.revokeObjectURL(url);
+            const valid = video.videoWidth < 1280 && video.videoHeight < 720;
+            resolve(valid);
+          };
+          video.onerror = () => resolve(false);
+        });
+      },
+      { message: 'Video resolution must be less than 1280x720 (HD).' }
+    ),
   thumbnail: z.any().refine((file) => file != null, {
     message: "Thumbnail is required.",
   }),

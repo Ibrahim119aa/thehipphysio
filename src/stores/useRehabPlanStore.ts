@@ -143,6 +143,26 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
         plans: state.plans.filter(Boolean).map((p) => (p._id === _id ? doc : p)),
         loading: false,
       }));
+      // set((state) => {
+      //   const updatedPlans = state.plans.filter(Boolean).map((p) =>
+      //     p._id === _id
+      //       ? {
+      //         ...p,
+      //         name: doc.name,
+      //         planType: doc.planType,
+      //         totalWeeks: doc.totalWeeks,
+      //         description: doc.description,
+      //         weekStart: doc.weekStart,
+      //         weekEnd: doc.weekEnd
+      //       }
+      //       : p
+      //   );
+
+      //   return {
+      //     plans: updatedPlans,
+      //     loading: false,
+      //   };
+      // });
       return true;
     } catch (err: unknown) {
       toast.error((err as Error).message || 'Failed to update rehab plan');
