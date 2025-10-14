@@ -64,7 +64,7 @@ export interface RehabPlan {
   _id: string;
   name: string;
   description?: string;
-  planType: 'free' | 'paid';
+  planType: 'free' | 'monthly-paid' | 'yearly-paid';
   price?: number;
   phase?: string;
   openEnded: boolean;

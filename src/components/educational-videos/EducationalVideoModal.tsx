@@ -28,37 +28,40 @@ const formSchema = z.object({
   video: z
     .any()
     .refine((file) => file && file.length > 0, {
-      message: 'Video is required.',
+      message: "Video is required.",
     })
     .refine(
-      (file) => file && file[0]?.type === 'video/mp4',
-      { message: 'Only MP4 files are allowed.' }
+      (file) => {
+        if (!file || !file[0]) return false;
+        const type = file[0]?.type;
+        return type === "video/mp4" || type === "video/quicktime"; // MOV is 'video/quicktime'
+      },
+      { message: "Only MP4 or MOV files are allowed." }
     )
     .refine(
       async (file) => {
         if (!file || !file[0]) return false;
 
-        // Check resolution
-        const fl = file[0] as File;
+        const fl = file[0];
         const url = URL.createObjectURL(fl);
 
-        return new Promise<boolean>((resolve) => {
-          const video = document.createElement('video');
-          video.preload = 'metadata';
+        return new Promise((resolve) => {
+          const video = document.createElement("video");
+          video.preload = "metadata";
           video.src = url;
           video.onloadedmetadata = () => {
             URL.revokeObjectURL(url);
-            const valid = video.videoWidth < 1280 && video.videoHeight < 720;
+            // ✅ Check resolution
+            const valid =
+              video.videoWidth <= 1280 && video.videoHeight <= 720;
             resolve(valid);
           };
           video.onerror = () => resolve(false);
         });
       },
-      { message: 'Video resolution must be less than 1280x720 (HD).' }
+      { message: "Video resolution must be ≤ 1280x720 (HD)." }
     ),
-  thumbnail: z.any().refine((file) => file != null, {
-    message: "Thumbnail is required.",
-  }),
+  thumbnail: z.any().optional()
 });
 
 type FormInput = z.input<typeof formSchema>;

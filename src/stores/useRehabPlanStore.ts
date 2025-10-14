@@ -27,8 +27,9 @@ type RehabPlanStore = {
   error: string | null;
 
   fetchPlans: () => Promise<void>;
-  addPlan: (payload: { name: string; planType: 'free' | 'paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[] }) => Promise<boolean>;
-  updatePlan: (payload: { _id: string; name: string; planType: 'free' | 'paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[] }) => Promise<boolean>;
+  addPlan: (payload: { name: string; planType: 'free' | 'monthly-paid' | 'yearly-paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[] }) => Promise<boolean>;
+  updatePlan: (payload: { _id: string; name: string; planType: 'free' | 'monthly-paid' | 'yearly-paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[] }) => Promise<boolean>;
+  duplicatePlan: (_id: string) => Promise<boolean>;
   deletePlan: (id: string) => Promise<void>;
   assignPlanToUser: (payload: AssignPayload) => Promise<boolean>;
   createSessionAndAttach: (args: CreateSessionArgs) => Promise<boolean>;
@@ -107,7 +108,47 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       return false;
     }
   },
+  duplicatePlan: async (_id) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await fetch(`${config.baseUri}/api/rehab-plans/duplicate/${_id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      const result = await res.json();
 
+      if (!res.ok || result?.success === false) {
+        toast.error(result?.message || 'Failed to create rehab plan');
+        set({ loading: false });
+        return false;
+      }
+
+      // Inline tolerant parsing (no helpers)
+      const doc: RehabPlan | undefined =
+        result?.plan ??
+        result?.data ??
+        (result && result._id ? (result as RehabPlan) : undefined);
+
+      if (!doc || !doc._id) {
+        toast.error('Server did not return the created plan.');
+        set({ loading: false });
+        return false;
+      }
+
+      toast.success(result?.message || 'Rehab plan created!');
+      set((state) => ({
+        plans: [doc, ...state.plans.filter(Boolean)],
+        loading: false,
+      }));
+
+      return true;
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Failed to update rehab plan');
+      set({ error: (err as Error).message || 'Failed to update rehab plan', loading: false });
+      return false;
+    }
+  },
   // PUT /api/rehab-plans/:id
   updatePlan: async ({ _id, ...rest }) => {
     set({ loading: true, error: null });
@@ -170,6 +211,7 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       return false;
     }
   },
+
 
   // DELETE /api/rehab-plans/:id
   deletePlan: async (id) => {

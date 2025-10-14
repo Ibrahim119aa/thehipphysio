@@ -34,9 +34,7 @@ const formSchema = z.object({
   video: z.any().refine((file) => file != null, {
     message: "Video is required.",
   }),
-  thumbnail: z.any().refine((file) => file != null, {
-    message: "Thumbnail is required.",
-  }),
+  thumbnail: z.any().optional()
 });
 
 // Very important with z.coerce: type the form with the **input** type

@@ -24,7 +24,7 @@ const optionalNumString = z.union([z.string(), z.number()]).optional();
 const schema = z.object({
   name: z.string().min(3, 'Title must be at least 3 characters.'),
   description: z.string().optional(),
-  planType: z.enum(['free', 'paid']),
+  planType: z.enum(['free', 'monthly-paid', 'yearly-paid']),
   openEnded: z.boolean(),
 
   // all optional on the form
@@ -43,7 +43,7 @@ interface Props {
   onSubmit: (data: {
     name: string;                     // API expects 'name'
     description?: string;
-    planType: 'free' | 'paid';
+    planType: 'free' | 'monthly-paid' | 'yearly-paid';
     openEnded: boolean;
     price?: number;
     phase?: string;
@@ -182,6 +182,9 @@ export function RehabPlanModal({
       category: selectedIds,
       equipment: selectedEquipmentIds,
     };
+    console.log("this is payload");
+    console.log(payload);
+
 
     onSubmit(payload);
   };
@@ -224,10 +227,11 @@ export function RehabPlanModal({
                       <select
                         className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                         value={field.value}
-                        onChange={(e) => field.onChange(e.target.value as 'free' | 'paid')}
+                        onChange={(e) => field.onChange(e.target.value as 'free' | 'monthly-paid' | 'yearly-paid')}
                       >
                         <option value="free">Free</option>
-                        <option value="paid">Paid</option>
+                        <option value="monthly-paid">Monthly-Paid</option>
+                        <option value="yearly-paid">Yearly-Paid</option>
                       </select>
                     </FormControl>
                     <FormMessage />

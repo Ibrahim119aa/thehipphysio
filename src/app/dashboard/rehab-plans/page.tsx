@@ -34,11 +34,13 @@ function RowActions({
   openAddEducationalVideo,
   onAssign,
   onDelete,
+  onDuplicate
 }: {
   plan: RehabPlan;
   onEdit: (p: RehabPlan) => void;
   onAddSession: (p: RehabPlan) => void;
   openAddEducationalVideo: (p: RehabPlan) => void;
+  onDuplicate: (p: RehabPlan) => void;
   onAssign: (p: RehabPlan) => void;
   onDelete: (p: RehabPlan) => void;
 }) {
@@ -63,6 +65,9 @@ function RowActions({
         <DropdownMenuItem onSelect={() => { setOpen(false); onAssign(plan); }}>
           Assign to User
         </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => { setOpen(false); onDuplicate(plan); }}>
+          Duplicate Plan
+        </DropdownMenuItem>
         <DropdownMenuItem
           className="text-red-500"
           onSelect={() => { setOpen(false); onDelete(plan); }}
@@ -75,7 +80,7 @@ function RowActions({
 }
 type AddPlanInput = {
   name: string;
-  planType: "free" | "paid";
+  planType: "free" | "monthly-paid" | 'yearly-paid';
   totalWeeks: number;
   description?: string;
   weekStart: number;
@@ -86,7 +91,7 @@ type AddPlanInput = {
 type UpdatePlanInput = {
   _id: string;
   name: string;
-  planType: "free" | "paid";
+  planType: "free" | "monthly-paid" | "yearly-paid";
   totalWeeks: number;
   description?: string;
   weekStart: number;
@@ -102,6 +107,7 @@ export default function RehabPlansPage() {
 
     addPlan,
     updatePlan,
+    duplicatePlan,
     deletePlan,
     assignPlanToUser,
     createRehabPlanEducationVideo,
@@ -164,6 +170,17 @@ export default function RehabPlansPage() {
     if (ok) closeAddEducationalVideo();
   };
 
+  const duplicateRehabPlan = async (plan: RehabPlan) => {
+    console.log("this is rehab plan");
+    console.log(plan);
+
+    setSelectedPlan(plan);
+
+    // ✅ Call the store method (not itself!)
+    const ok = await duplicatePlan(plan._id);
+
+    if (ok) closePlanModal();
+  };
   // Assign
   const openAssign = async (plan: RehabPlan) => {
     setSelectedPlan(plan);
@@ -214,8 +231,8 @@ export default function RehabPlansPage() {
       accessorKey: 'planType',
       header: 'Type',
       cell: (row) => (
-        <Badge variant={row.planType === 'paid' ? 'default' : 'outline'}>
-          {row.planType === 'paid' ? 'Paid' : 'Free'}
+        <Badge variant={(row.planType === 'monthly-paid' || row.planType === 'yearly-paid') ? 'default' : 'outline'}>
+          {row.planType === 'monthly-paid' ? 'Monthly Paid':row.planType === 'yearly-paid'?'Yearly Paid' : 'Free'}
         </Badge>
       ),
     },
@@ -232,7 +249,7 @@ export default function RehabPlansPage() {
     {
       accessorKey: 'price',
       header: 'Price',
-      cell: (row) => (row.planType === 'paid' ? `$${Number(row.price ?? 0).toFixed(2)}` : '—'),
+      cell: (row) => ((row.planType === 'monthly-paid' || row.planType === 'yearly-paid') ? `£${Number(row.price ?? 0).toFixed(2)}` : '—'),
     },
     {
       accessorKey: '_id',
@@ -240,6 +257,7 @@ export default function RehabPlansPage() {
       cell: (row) => (
         <RowActions
           plan={row}
+          onDuplicate={duplicateRehabPlan}
           onEdit={openEdit}
           onAddSession={openAddSession}
           openAddEducationalVideo={openAddEducationalVideo}
