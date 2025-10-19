@@ -34,6 +34,7 @@ type RehabPlanStore = {
   assignPlanToUser: (payload: AssignPayload) => Promise<boolean>;
   createSessionAndAttach: (args: CreateSessionArgs) => Promise<boolean>;
   createRehabPlanEducationVideo: (args: CreateRehabPlanEducationVideoArgs) => Promise<boolean>;
+  
 };
 
 export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
@@ -97,6 +98,10 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       }
 
       toast.success(result?.message || 'Rehab plan created!');
+
+      console.log("this is rehab plan doc");
+      console.log(doc);
+
       set((state) => ({
         plans: [doc, ...state.plans.filter(Boolean)],
         loading: false,
@@ -137,6 +142,8 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       }
 
       toast.success(result?.message || 'Rehab plan created!');
+      console.log("this is duplicate rehab plan doc");
+      console.log(doc);
       set((state) => ({
         plans: [doc, ...state.plans.filter(Boolean)],
         loading: false,

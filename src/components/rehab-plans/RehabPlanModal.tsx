@@ -33,6 +33,20 @@ const schema = z.object({
   weekStart: optionalNumString,
   weekEnd: optionalNumString,
   planDurationInWeeks: optionalNumString,
+}).refine((data) => {
+  const duration = Number(data.planDurationInWeeks) || 0;
+
+  if (data.planType === 'monthly-paid' && duration > 5) {
+    return false;
+  }
+  if (data.planType === 'yearly-paid' && duration > 52) {
+    return false;
+  }
+
+  return true;
+}, {
+  message: "Invalid duration: Monthly plan can't exceed 5 weeks, yearly plan can't exceed 52 weeks.",
+  path: ['planDurationInWeeks'],
 });
 
 type FormInput = z.input<typeof schema>;

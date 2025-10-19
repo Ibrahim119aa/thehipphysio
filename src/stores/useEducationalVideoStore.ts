@@ -38,18 +38,18 @@ export const useEducationalVideoStore = create<State>((set) => ({
   fetchVideos: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${config.baseUri}/api/educational-videos`, { 
+      const res = await fetch(`${config.baseUri}/api/educational-videos`, {
         method: 'GET',
-        credentials: 'include' 
+        credentials: 'include'
       });
       const result = await res.json();
-      
+
       if (!res.ok || !result?.success) {
         toast.error(result?.message || 'Failed to fetch videos');
         set({ loading: false });
         return;
       }
-      
+
       set({ videos: result.data ?? [], loading: false });
     } catch (err: unknown) {
       toast.error((err as { message?: string })?.message || 'Failed to fetch videos');
@@ -59,19 +59,19 @@ export const useEducationalVideoStore = create<State>((set) => ({
 
   fetchCategories: async () => {
     try {
-      const res = await fetch(`${config.baseUri}/api/educational-videos/category`, { 
+      const res = await fetch(`${config.baseUri}/api/educational-videos/category`, {
         method: 'GET',
-        credentials: 'include' 
+        credentials: 'include'
       }
-    );
+      );
       const result = await res.json();
       console.log(result.categories);
-      
+
       if (!res.ok || !result?.success) {
         toast.error(result?.message || 'Failed to fetch categories');
         return;
       }
-    
+
       set({ categories: result.categories ?? [] });
     } catch (err: unknown) {
       toast.error((err as { message?: string })?.message || 'Failed to fetch categories');
@@ -80,7 +80,7 @@ export const useEducationalVideoStore = create<State>((set) => ({
 
   addVideo: async (formData: FormData) => {
     set({ loading: true, error: null });
-    
+
     try {
       const res = await fetch(`${config.baseUri}/api/educational-videos`, {
         method: 'POST',

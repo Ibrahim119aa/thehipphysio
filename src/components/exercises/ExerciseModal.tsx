@@ -31,9 +31,47 @@ const formSchema = z.object({
   difficulty: z.enum(['Beginner', 'Medium', 'Advanced']),
   estimatedDuration: z.coerce.number().optional(),
   // File inputs come in as FileList (or undefined)
-  video: z.any().refine((file) => file != null, {
-    message: "Video is required.",
-  }),
+  video: z
+    .any()
+    .refine((file) => {
+      // ✅ Allow existing string URL (edit mode)
+      if (typeof file === "string") return true;
+      if (!file || file.length === 0) return false;
+      return true;
+    }, {
+      message: "Video is required.",
+    })
+    .refine((file) => {
+      if (typeof file === "string") return true; // ✅ Skip check for URL
+      if (!file || !file[0]) return false;
+      const type = file[0]?.type;
+      return type === "video/mp4" || type === "video/quicktime";
+    }, {
+      message: "Only MP4 or MOV files are allowed.",
+    })
+    .refine(async (file) => {
+      // ✅ Skip for existing URLs
+      if (typeof file === "string") return true;
+      if (!file || !file[0]) return false;
+
+      const fl = file[0];
+      if (!(fl instanceof File)) return true;
+
+      const url = URL.createObjectURL(fl);
+      return new Promise((resolve) => {
+        const video = document.createElement("video");
+        video.preload = "metadata";
+        video.src = url;
+        video.onloadedmetadata = () => {
+          URL.revokeObjectURL(url);
+          const valid = video.videoWidth <= 1280 && video.videoHeight <= 720;
+          resolve(valid);
+        };
+        video.onerror = () => resolve(false);
+      });
+    }, {
+      message: "Video resolution must be ≤ 1280x720 (HD).",
+    }),
   thumbnail: z.any().optional()
 });
 
@@ -82,6 +120,8 @@ export function ExerciseModal({
 
 
   useEffect(() => {
+    console.log("this is iniitial data");
+    console.log(initialData);
     if (initialData) {
       form.reset({
         name: initialData.name,
@@ -91,6 +131,7 @@ export function ExerciseModal({
         description: initialData.description ?? '',
         tags: (initialData.tags ?? []).join(', '),
         bodyPart: initialData.bodyPart ?? '',
+        video: initialData.videoUrl ?? '',
         difficulty: initialData.difficulty as 'Beginner' | 'Medium' | 'Advanced',
         estimatedDuration: initialData.estimatedDuration as unknown, // input type can be unknown
       });

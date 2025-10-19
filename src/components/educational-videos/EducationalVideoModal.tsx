@@ -20,49 +20,54 @@ import { EducationalVideo, useEducationalVideoStore } from '@/stores/useEducatio
 const formSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters.'),
   description: z.string().min(10, 'Description must be at least 10 characters.'),
-  // selected category ids
   categories: z.array(z.string()).optional().default([]),
-  // optional if server derives duration from video
   duration: z.coerce.number().optional(),
-  // files
+
   video: z
     .any()
-    .refine((file) => file && file.length > 0, {
+    .refine((file) => {
+      // ✅ Allow existing string URL (edit mode)
+      if (typeof file === "string") return true;
+      if (!file || file.length === 0) return false;
+      return true;
+    }, {
       message: "Video is required.",
     })
-    .refine(
-      (file) => {
-        if (!file || !file[0]) return false;
-        const type = file[0]?.type;
-        return type === "video/mp4" || type === "video/quicktime"; // MOV is 'video/quicktime'
-      },
-      { message: "Only MP4 or MOV files are allowed." }
-    )
-    .refine(
-      async (file) => {
-        if (!file || !file[0]) return false;
+    .refine((file) => {
+      if (typeof file === "string") return true; // ✅ Skip check for URL
+      if (!file || !file[0]) return false;
+      const type = file[0]?.type;
+      return type === "video/mp4" || type === "video/quicktime";
+    }, {
+      message: "Only MP4 or MOV files are allowed.",
+    })
+    .refine(async (file) => {
+      // ✅ Skip for existing URLs
+      if (typeof file === "string") return true;
+      if (!file || !file[0]) return false;
 
-        const fl = file[0];
-        const url = URL.createObjectURL(fl);
+      const fl = file[0];
+      if (!(fl instanceof File)) return true;
 
-        return new Promise((resolve) => {
-          const video = document.createElement("video");
-          video.preload = "metadata";
-          video.src = url;
-          video.onloadedmetadata = () => {
-            URL.revokeObjectURL(url);
-            // ✅ Check resolution
-            const valid =
-              video.videoWidth <= 1280 && video.videoHeight <= 720;
-            resolve(valid);
-          };
-          video.onerror = () => resolve(false);
-        });
-      },
-      { message: "Video resolution must be ≤ 1280x720 (HD)." }
-    ),
-  thumbnail: z.any().optional()
+      const url = URL.createObjectURL(fl);
+      return new Promise((resolve) => {
+        const video = document.createElement("video");
+        video.preload = "metadata";
+        video.src = url;
+        video.onloadedmetadata = () => {
+          URL.revokeObjectURL(url);
+          const valid = video.videoWidth <= 1280 && video.videoHeight <= 720;
+          resolve(valid);
+        };
+        video.onerror = () => resolve(false);
+      });
+    }, {
+      message: "Video resolution must be ≤ 1280x720 (HD).",
+    }),
+
+  thumbnail: z.any().optional(),
 });
+
 
 type FormInput = z.input<typeof formSchema>;
 
@@ -109,9 +114,12 @@ export function EducationalVideoModal({
   }, [initialData]);
 
   useEffect(() => {
+    console.log("this is initial data ");
+    console.log(initialData);
     if (initialData) {
       form.reset({
         title: initialData.title,
+        video: initialData.videoUrl ?? '',
         description: initialData.description ?? '',
         categories: initialCategoryIds,
         duration: initialData.duration as unknown, // allow unknown to go into input

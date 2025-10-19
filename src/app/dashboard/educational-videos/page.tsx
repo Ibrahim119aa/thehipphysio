@@ -144,7 +144,7 @@ export default function EducationalVideosPage() {
           width={64}
           height={40}
           src={v.thumbnailUrl}
-          alt={v.thumbnailUrl}
+          alt={v.title}
           className="h-10 w-16 rounded object-cover border"
         />
       ),

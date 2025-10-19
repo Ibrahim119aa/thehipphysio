@@ -25,6 +25,7 @@ const navItems = [
       { href: "/dashboard/plan-categories", label: "Categories" },
       { href: "/dashboard/equipments", label: "Equipments" },
       { href: "/dashboard/rehab-plans/sessions", label: "Session Exercises" },
+      { href: "/dashboard/rehab-plans/educational-videos", label: "Educational Videos" },
     ],
   },
 
