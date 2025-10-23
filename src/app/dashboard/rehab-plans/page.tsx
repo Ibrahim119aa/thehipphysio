@@ -232,7 +232,7 @@ export default function RehabPlansPage() {
       header: 'Type',
       cell: (row) => (
         <Badge variant={(row.planType === 'monthly-paid' || row.planType === 'yearly-paid') ? 'default' : 'outline'}>
-          {row.planType === 'monthly-paid' ? 'Monthly Paid':row.planType === 'yearly-paid'?'Yearly Paid' : 'Free'}
+          {row.planType === 'monthly-paid' ? 'Monthly Paid' : row.planType === 'yearly-paid' ? 'Yearly Paid' : 'Free'}
         </Badge>
       ),
     },

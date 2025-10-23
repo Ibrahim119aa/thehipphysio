@@ -1,6 +1,6 @@
 
 'use client';
-import { CreateUserPayload } from '@/lib/types';
+
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -124,12 +124,7 @@ export default function UsersPage() {
       } else {
         // create user
         if (typeof values.password === 'string') {
-          const payload: CreateUserPayload = {
-            name: values.name ?? '',
-            email: values.email ?? '',
-            role: values.role as "admin" | "user" | "therapist",
-            password: values.password,
-          };
+          
           await addUser({
             name: values.name ?? '',
             email: values.email ?? '',

@@ -68,71 +68,71 @@ const RehabPlansPage: React.FC = () => {
 
     useEffect(() => {
         const fetchRehabPlans = async () => {
-            try {
-                const response = await fetch(
-                    "https://the-hip-physio-api.onrender.com/api/rehab-plans",
-                    {
-                        method: "GET",
-                        headers: {
-                            Accept: "application/json",
-                            "Content-Type": "application/json",
-                            "ngrok-skip-browser-warning": "true",
-                        },
-                    }
-                );
+            // try {
+            //     const response = await fetch(
+            //         "https://the-hip-physio-api.onrender.com/api/rehab-plans",
+            //         {
+            //             method: "GET",
+            //             headers: {
+            //                 Accept: "application/json",
+            //                 "Content-Type": "application/json",
+            //                 "ngrok-skip-browser-warning": "true",
+            //             },
+            //         }
+            //     );
 
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            //     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-                const result = await response.json();
+            //     const result = await response.json();
 
-                if (result.success && result.data && result.data.length > 0) {
-                    setPlans(result.data);
-                    setError(null);
-                } else {
-                    throw new Error("No plans available from API");
-                }
-            } catch (err: any) {
-                console.warn("API failed, showing static data:", err.message);
-                setError(
-                    `Unable to load live data (${err.message}). Showing example plans instead.`
-                );
-                setPlans(staticPlans);
-            } finally {
-                setLoading(false);
-            }
+            //     if (result.success && result.data && result.data.length > 0) {
+            //         setPlans(result.data);
+            //         setError(null);
+            //     } else {
+            //         throw new Error("No plans available from API");
+            //     }
+            // } catch (err: Error) {
+            //     console.warn("API failed, showing static data:", err.message);
+            //     setError(
+            //         `Unable to load live data (${err.message}). Showing example plans instead.`
+            //     );
+            //     setPlans(staticPlans);
+            // } finally {
+            //     setLoading(false);
+            // }
         };
 
         fetchRehabPlans();
     }, []);
 
     const buyPlan = async (planId: string, planName: string, planPrice: number) => {
-        try {
-            const response = await fetch(
-                "https://the-hip-physio-api.onrender.com/api/user/create-checkout-session",
-                {
-                    method: "POST",
-                    headers: {
-                        Accept: "application/json",
-                        "Content-Type": "application/json",
-                        "ngrok-skip-browser-warning": "true",
-                    },
-                    body: JSON.stringify({ planId, rehabPlanName: planName, price: planPrice }),
-                }
-            );
+        // try {
+        //     const response = await fetch(
+        //         "https://the-hip-physio-api.onrender.com/api/user/create-checkout-session",
+        //         {
+        //             method: "POST",
+        //             headers: {
+        //                 Accept: "application/json",
+        //                 "Content-Type": "application/json",
+        //                 "ngrok-skip-browser-warning": "true",
+        //             },
+        //             body: JSON.stringify({ planId, rehabPlanName: planName, price: planPrice }),
+        //         }
+        //     );
 
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        //     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-            const data = await response.json();
-            const url = data.id || "";
+        //     const data = await response.json();
+        //     const url = data.id || "";
 
-            if (url) {
-                window.location.href = url;
-            } else {
-                throw new Error("No checkout URL received from server");
-            }
-        } catch (error: any) {
-            alert("Checkout failed. Please try again.\n\nError: " + error.message);
-        }
+        //     if (url) {
+        //         window.location.href = url;
+        //     } else {
+        //         throw new Error("No checkout URL received from server");
+        //     }
+        // } catch (error: any) {
+        //     alert("Checkout failed. Please try again.\n\nError: " + error.message);
+        // }
     };
 
     return (

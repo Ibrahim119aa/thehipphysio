@@ -25,7 +25,7 @@ export default function RehabPlanEducationalVideos() {
     } = useRehabPlanEducationalVideoStore();
 
     // modal for add exercises to a specific session
-    const [targetSessionId, setTargetSessionId] = useState<string | null>(null);
+
     const [targetSessionTitle, setTargetSessionTitle] = useState<string | undefined>(undefined);
     const [alreadyIn, setAlreadyIn] = useState<string[]>([]);
     const [isAddOpen, setIsAddOpen] = useState(false);
@@ -47,15 +47,10 @@ export default function RehabPlanEducationalVideos() {
 
 
 
-    const openAddExercises = (sessionId: string, title: string, existing: string[]) => {
-        setTargetSessionId(sessionId);
-        setTargetSessionTitle(title);
-        setAlreadyIn(existing);
-        setIsAddOpen(true);
-    };
+    
     const closeAddExercises = () => {
         setIsAddOpen(false);
-        setTargetSessionId(null);
+
         setTargetSessionTitle(undefined);
         setAlreadyIn([]);
     };
@@ -64,6 +59,7 @@ export default function RehabPlanEducationalVideos() {
         // if (!targetSessionId || exerciseIds.length === 0) return;
         // const ok = await addExercisesToSession({ sessionId: targetSessionId, exerciseIds });
         // if (ok) closeAddExercises();
+        console.log(exerciseIds);
     };
 
     const handleRemoveVideoFromPlan = async (videoId: string, planId: string) => {

@@ -10,6 +10,7 @@ import { usePlanScheduleStore } from '@/stores/usePlanScheduleStore';
 import { AddExercisesToSessionModal } from '@/components/rehab-plans/AddExercisesToSessionModal';
 import { Trash2 } from 'lucide-react';
 import type { RehabPlan } from '@/lib/types';
+import { UpdateWeekNameModal } from '@/components/session/UpdateWeekNameModal';
 
 export default function RehabPlanSessionsPage() {
   // plans list
@@ -22,6 +23,8 @@ export default function RehabPlanSessionsPage() {
     loading: scheduleLoading,
     fetchSchedule,
     addExercisesToSession,
+    duplicateWeek,
+    editeWeekName,
     removeExerciseFromSession,
   } = usePlanScheduleStore();
 
@@ -30,7 +33,8 @@ export default function RehabPlanSessionsPage() {
   const [targetSessionTitle, setTargetSessionTitle] = useState<string | undefined>(undefined);
   const [alreadyIn, setAlreadyIn] = useState<string[]>([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
-
+  const [isUpdateWeekOpen, setIsUpdateWeekOpen] = useState(false);
+  const closeAssign = () => { setIsUpdateWeekOpen(false); };
   useEffect(() => {
     if (!plans?.length) fetchPlans();
   }, [plans?.length, fetchPlans]);
@@ -60,6 +64,26 @@ export default function RehabPlanSessionsPage() {
     setTargetSessionTitle(undefined);
     setAlreadyIn([]);
   };
+  const duplicateWeekHander = async (selectedPlanId: string, week: number) => {
+    await duplicateWeek(selectedPlanId, week);
+  }
+  const [selectWeekNumber, setSelectedWeekNumber] = useState('');
+  const [selectedWeekName, setSelectedWeekName] = useState('');
+
+
+  const openWeekNameModal = (weekNumber: string, weekName: string | undefined) => {
+    setSelectedWeekNumber(weekNumber);
+    if (weekName != '') {
+      setSelectedWeekName(weekName || '');
+    }
+
+    setIsUpdateWeekOpen(true); // ✅ Always open modal, not toggle
+  };
+  const editWeekNameHandler = async (selectedPlanId: string, weekNumber: string, weekName: string) => {
+    setIsUpdateWeekOpen(false);
+    await editeWeekName(selectedPlanId, weekNumber, weekName);
+
+  }
 
   const handleAddExercises = async (exerciseIds: string[]) => {
     if (!targetSessionId || exerciseIds.length === 0) return;
@@ -108,7 +132,33 @@ export default function RehabPlanSessionsPage() {
         ) : (
           schedule.weeks.map((w) => (
             <div key={w.week} className="space-y-3">
-              <h3 className="text-lg font-semibold">Week {w.week}</h3>
+              <div className='flex justify-between'>
+                <h3 className="text-lg font-semibold items-start">
+                  {w.weekName && w.weekName !== "" ? (
+                    w.weekName
+                  ) : (
+                    <>Week {w.week}</>
+                  )}
+                </h3>
+
+                <div className='flex gap-3'>
+                  <Button
+                    onClick={() => duplicateWeekHander(selectedPlanId, w.week)}
+                    size="sm"
+
+                  >
+                    Duplicate Week
+                  </Button>
+                  <Button
+                    onClick={() => openWeekNameModal(String(w.week), w.weekName)}
+                    size="sm"
+
+                  >
+                    Editable Week Name
+                  </Button>
+                </div>
+
+              </div>
               <div className="grid gap-3">
                 {w.days.map((d) => (
                   <div key={`${w.week}-${d.day}`} className="rounded-md border p-3 bg-white">
@@ -144,8 +194,8 @@ export default function RehabPlanSessionsPage() {
                                 <div key={ex._id} className="flex items-center gap-3 rounded-md border p-2">
                                   {ex.thumbnailUrl ? (
                                     <Image
-                                    width={48}
-                                    height={48}
+                                      width={48}
+                                      height={48}
                                       src={ex.thumbnailUrl}
                                       alt={ex.name}
                                       className="h-12 w-12 rounded object-cover border"
@@ -192,6 +242,15 @@ export default function RehabPlanSessionsPage() {
         sessionTitle={targetSessionTitle}
         alreadyInSession={alreadyIn}
         onSubmit={handleAddExercises}
+        isLoading={scheduleLoading}
+      />
+      <UpdateWeekNameModal
+        isOpen={isUpdateWeekOpen}
+        onClose={closeAssign}
+        selectPlanId={selectedPlanId}
+        weekName={selectedWeekName}
+        selectWeekNumber={selectWeekNumber}
+        onSubmit={editWeekNameHandler}
         isLoading={scheduleLoading}
       />
     </div>

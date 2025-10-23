@@ -7,14 +7,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
 import {
-    Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
+    Form,  FormLabel,
 } from '@/components/ui/form';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 
-import type { Exercise, RehabPlan } from '@/lib/types';
+import type {  RehabPlan } from '@/lib/types';
 import { EducationalVideo, useEducationalVideoStore } from '@/stores/useEducationalVideoStore';
 
 const schema = z.object({
@@ -24,12 +24,7 @@ const schema = z.object({
 
 type FormInput = z.input<typeof schema>;
 
-type InputValue = string | number | readonly string[] | undefined;
-const toInputValue = (v: unknown): InputValue => {
-    if (v === null || v === undefined) return '';
-    if (typeof v === 'number' || typeof v === 'string') return v;
-    return ''; // fallback so TS never sees `{}` here
-};
+
 
 interface Props {
     isOpen: boolean;

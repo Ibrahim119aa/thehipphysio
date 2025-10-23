@@ -33,8 +33,9 @@ type RehabPlanStore = {
   deletePlan: (id: string) => Promise<void>;
   assignPlanToUser: (payload: AssignPayload) => Promise<boolean>;
   createSessionAndAttach: (args: CreateSessionArgs) => Promise<boolean>;
+
   createRehabPlanEducationVideo: (args: CreateRehabPlanEducationVideoArgs) => Promise<boolean>;
-  
+
 };
 
 export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
@@ -42,6 +43,7 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
   loading: false,
   error: null,
 
+ 
   // GET /api/rehab-plans
   fetchPlans: async () => {
     set({ loading: true, error: null });
@@ -370,6 +372,7 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
         }),
       });
 
+
       const data1 = await res1.json().catch(() => ({} as unknown));
 
       if (!res1.ok || data1?.success === false) {
@@ -387,30 +390,38 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       }
 
       // 2) Attach to plan.schedule (upsert week/day + push sessionId)
-      const res2 = await fetch(`${config.baseUri}/api/rehab-plans/${planId}`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          schedule: [
-            {
-              week: weekNumber,
-              day: dayNumber,
-              sessions: [sessionId],
-            },
-          ],
-        }),
-      });
+      if (!data1?.isExisting) {
+        const res2 = await fetch(`${config.baseUri}/api/rehab-plans/${planId}`, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            schedule: [
+              {
+                week: weekNumber,
+                day: dayNumber,
+                sessions: [sessionId],
+              },
+            ],
+          }),
+        });
 
-      const data2 = await res2.json().catch(() => ({} as unknown));
+        const data2 = await res2.json().catch(() => ({} as unknown));
 
-      if (!res2.ok || data2?.success === false) {
-        toast.error(data2?.message || 'Failed to attach session to plan');
+        if (!res2.ok || data2?.success === false) {
+          toast.error(data2?.message || 'Failed to attach session to plan');
+          set({ loading: false });
+          return false;
+        }
+        toast.success(data2?.message || 'Session added to plan!');
+
+        await get().fetchPlans(); // refresh list
+
         set({ loading: false });
-        return false;
+        return true;
       }
 
-      toast.success(data2?.message || 'Session added to plan!');
+      toast.success('Session added to plan!');
 
       await get().fetchPlans(); // refresh list
 

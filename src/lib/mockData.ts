@@ -31,7 +31,7 @@
 
 
 // lib/mockData.ts
-import { DashboardAnalytics, UserWithAnalytics, Exercise, RehabPlan, Notification, ContentPage } from '@/lib/types';
+import { DashboardAnalytics, UserWithAnalytics } from '@/lib/types';
 
 export const mockUsers: UserWithAnalytics[] = [
   { _id: 'usr_1', username: 'John Doe', email: 'john.d@example.com', status: 'active', plan: 'FAI Post Op', startDate: '2025-07-01T00:00:00Z', lastLogin: '2025-07-28T10:00:00Z', analytics: { complianceRate: 95, averageIrritability: 2.1 } },
@@ -46,11 +46,6 @@ export const mockExercises: unknown[] = [
   { _id: 'ex_2', name: 'Clamshell', description: 'Lie on your side with knees bent...', videoUrl: 'https://example.com/video2.mp4', reps: '20', sets: '3', category: 'Hip / Strengthening', tags: ['Phase 1', 'Pilates'] },
   { _id: 'ex_3', name: 'Standing Hip Abduction', description: 'Stand tall and lift one leg out to the side...', videoUrl: 'https://example.com/video3.mp4', reps: '12', sets: '3', category: 'Strengthening', tags: ['Phase 2', 'Balance'] },
 ];
-interface RehabPlan1 {
-  _id: string;
-  name: string;
-  durationWeeks: number;
-}
 
 export const mockPlans: unknown[] = [
   { _id: 'plan_1', name: 'FAI Post Operative', durationWeeks: 12 },

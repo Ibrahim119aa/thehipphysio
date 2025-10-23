@@ -13,7 +13,7 @@ import {
 import { ColumnDef, DataTable } from '@/components/common/DataTables';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
-import { RehabPlanCategory, useRehabPlanCategoryStore } from '@/stores/rehabPlanCategories';
+import { RehabPlanCategory } from '@/stores/rehabPlanCategories';
 import { PlanEquipmentModal } from '@/components/plan-equipments/PlanEquipmentModal';
 import { useRehabPlanEquipmentStore } from '@/stores/rehabPlanEquipments';
 

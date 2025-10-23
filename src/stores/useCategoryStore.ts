@@ -13,7 +13,7 @@ interface CategoryState {
   fetchCategories: () => Promise<void>;
 }
 
-export const useCategoryStore = create<CategoryState>((set, get) => ({
+export const useCategoryStore = create<CategoryState>((set) => ({
   categories: [],
   loading: false,
   error: null,
