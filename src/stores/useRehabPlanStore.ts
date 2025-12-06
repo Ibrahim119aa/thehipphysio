@@ -28,7 +28,7 @@ type RehabPlanStore = {
 
   fetchPlans: () => Promise<void>;
   addPlan: (payload: { name: string; planType: 'free' | 'monthly-paid' | 'yearly-paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[] }) => Promise<boolean>;
-  updatePlan: (payload: { _id: string; name: string; planType: 'free' | 'monthly-paid' | 'yearly-paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[],discountCode: number }) => Promise<boolean>;
+  updatePlan: (payload: { _id: string; name: string; planType: 'free' | 'monthly-paid' | 'yearly-paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[],discountCode?: number }) => Promise<boolean>;
   duplicatePlan: (_id: string) => Promise<boolean>;
   deletePlan: (id: string) => Promise<void>;
   assignPlanToUser: (payload: AssignPayload) => Promise<boolean>;
