@@ -84,6 +84,7 @@ type AddPlanInput = {
   totalWeeks: number;
   description?: string;
   weekStart: number;
+  discountCode?: number;
   weekEnd: number;
   category: string[];
   equipment: string[];
@@ -96,6 +97,7 @@ type UpdatePlanInput = {
   description?: string;
   weekStart: number;
   weekEnd: number;
+  discountCode?: number;
   category: string[];
   equipment: string[];
 };
@@ -199,7 +201,7 @@ export default function RehabPlansPage() {
 
   // Submit plan (create/update)
   const handlePlanSubmit = async (payload: Record<string, unknown>) => {
-    console.log("this is payload");
+    console.log("this is payload 123");
     console.log(payload);
     const ok = selectedPlan
       ? await updatePlan({
@@ -245,6 +247,11 @@ export default function RehabPlansPage() {
       accessorKey: 'phase',
       header: 'Phase',
       cell: (row) => row.phase ?? '—',
+    },
+    {
+      accessorKey: 'promotionCodeId',
+      header: 'Voucher Code',
+      cell: (row) => row.promotionCodeId ?? '—',
     },
     {
       accessorKey: 'price',

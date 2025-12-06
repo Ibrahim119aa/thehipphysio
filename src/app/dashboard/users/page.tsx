@@ -124,12 +124,15 @@ export default function UsersPage() {
       } else {
         // create user
         if (typeof values.password === 'string') {
-          
+
           await addUser({
             name: values.name ?? '',
             email: values.email ?? '',
             password: values.password,
             role: values.role as "user" | "admin",
+            status: values.status as "active" | "inactive",
+            occupation: values.occupation ?? '',
+            dob: values.dob ?? ''
           });
 
         } else {

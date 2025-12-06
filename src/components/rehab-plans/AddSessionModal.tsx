@@ -112,7 +112,7 @@ export function AddSessionModal({
       <DialogContent className="sm:max-w-[860px] max-h-[95vh] overflow-auto">
         <DialogHeader>
           <DialogTitle>
-            Add Session {plan?.name ? `— ${plan.name}` : ''}
+            Add Session  {plan?.name ? `— ${plan.name}` : ''}
           </DialogTitle>
         </DialogHeader>
 
@@ -181,7 +181,7 @@ export function AddSessionModal({
             <div>
               <FormLabel>Exercises</FormLabel>
               <ScrollArea className="h-[360px] rounded-md border p-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
                   {(filtered ?? []).map((ex: Exercise) => (
                     <label key={ex._id} className="flex items-center gap-3 rounded-md border p-2 hover:bg-accent transition">
                       <Checkbox

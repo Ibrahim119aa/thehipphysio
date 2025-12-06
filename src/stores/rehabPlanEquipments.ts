@@ -14,7 +14,7 @@ type State = {
   rehabPlanEquipment: RehabPlanCategory[];
   loading: boolean;
   fetchRehabPlanEquipment: () => Promise<void>;
-  addRehabPlanEquipment: (p: { title: string; description: string }) => Promise<RehabPlanCategory>;
+  addRehabPlanEquipment: (p: { title: string; description: string }) => Promise<RehabPlanCategory | null>;
   updateRehabPlanEquipment: (p: { _id: string; title: string; description: string }) => Promise<RehabPlanCategory>;
   deleteRehabPlanEquipment: (id: string) => Promise<void>;
 };
@@ -46,25 +46,39 @@ export const useRehabPlanEquipmentStore = create<State>((set) => ({
 
   addRehabPlanEquipment: async (payload) => {
 
-    const res = await fetch(`${config.baseUri}/api/rehab-plans/equipments`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await fetch(`${config.baseUri}/api/rehab-plans/equipments`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    const data = await res.json().catch(() => ({} as unknown));
+      const data = await res.json().catch(() => ({} as unknown));
 
-    if (!res.ok) throw new Error(data?.message || data?.error || 'Failed to create category');
+      if (!res.ok) throw new Error(data?.message || data?.error || 'Failed to create category');
 
-    const created: RehabPlanCategory = data?.data ?? data?.category;
+      const created: RehabPlanCategory = data?.data ?? data?.category;
 
-    if (created && created._id) {
-      set((s) => ({ rehabPlanEquipment: [created, ...s.rehabPlanEquipment] }));
+      if (created && created._id) {
+        set((s) => ({ rehabPlanEquipment: [created, ...s.rehabPlanEquipment] }));
+        toast.error('Server did not return the created plan category.');
+      }
+      if (created && created._id) {
+        toast.error('Server did not return the created plan equipment.');
+      }
+
+
+      toast.success(data?.message || 'Rehab plan equipment created successfully.');
+      return created;
     }
-    return created;
-  },
-
+    catch (err) {
+      toast.error((err as Error).message);
+      // set({ error: (err as Error).message, loading: false });
+      return null;
+    }
+  }
+  ,
   updateRehabPlanEquipment: async ({ _id, ...payload }) => {
 
     const res = await fetch(`${config.baseUri}/api/rehab-plans/equipments/${_id}`, {

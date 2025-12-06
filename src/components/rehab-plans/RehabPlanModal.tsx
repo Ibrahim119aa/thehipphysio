@@ -19,35 +19,37 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RehabPlan } from '@/lib/types';
 import { useRehabPlanCategoryStore } from '@/stores/rehabPlanCategories';
 import { useRehabPlanEquipmentStore } from '@/stores/rehabPlanEquipments';
+import { X } from 'lucide-react';
 const optionalNumString = z.union([z.string(), z.number()]).optional();
 
+
+// Inside your component RehabPlanModal
+
+// Add a new form field for discount/promo code in the schema
 const schema = z.object({
   name: z.string().min(3, 'Title must be at least 3 characters.'),
   description: z.string().optional(),
   planType: z.enum(['free', 'monthly-paid', 'yearly-paid']),
   openEnded: z.boolean(),
-
-  // all optional on the form
   price: optionalNumString,
   phase: z.string().optional(),
   weekStart: optionalNumString,
   weekEnd: optionalNumString,
   planDurationInWeeks: optionalNumString,
-}).refine((data) => {
-  const duration = Number(data.planDurationInWeeks) || 0;
+  discountCode: z.number().default(0), // <-- add discount/promo code
+})
+  .refine((data) => {
+    const duration = Number(data.planDurationInWeeks) || 0;
 
-  if (data.planType === 'monthly-paid' && duration > 5) {
-    return false;
-  }
-  if (data.planType === 'yearly-paid' && duration > 52) {
-    return false;
-  }
+    if (data.planType === 'monthly-paid' && duration > 5) return false;
+    if (data.planType === 'yearly-paid' && duration > 52) return false;
 
-  return true;
-}, {
-  message: "Invalid duration: Monthly plan can't exceed 5 weeks, yearly plan can't exceed 52 weeks.",
-  path: ['planDurationInWeeks'],
-});
+    return true;
+  }, {
+    message: "Invalid duration: Monthly plan can't exceed 5 weeks, yearly plan can't exceed 52 weeks.",
+    path: ['planDurationInWeeks'],
+  });
+
 
 type FormInput = z.input<typeof schema>;
 
@@ -60,6 +62,7 @@ interface Props {
     planType: 'free' | 'monthly-paid' | 'yearly-paid';
     openEnded: boolean;
     price?: number;
+    discountCode?: number;
     phase?: string;
     weekStart?: number | null;
     weekEnd?: number | null;
@@ -108,6 +111,7 @@ export function RehabPlanModal({
       openEnded: false,
       price: '',
       phase: '',
+      discountCode: 0,
       weekStart: '',
       weekEnd: '',
       planDurationInWeeks: '',
@@ -115,7 +119,11 @@ export function RehabPlanModal({
   });
 
   /** initialize/reset form + category checkboxes from initialData */
+
   useEffect(() => {
+    console.log("this is initial data");
+    console.log(initialData);
+
     if (initialData) {
       form.reset({
         name: initialData.name ?? '',
@@ -140,6 +148,7 @@ export function RehabPlanModal({
             initialData.planDurationInWeeks === undefined
             ? ''
             : String(initialData.planDurationInWeeks),
+        discountCode: initialData.discountCode ?? 0, // <-- set discount here
       } as FormInput);
 
       setSelectedIds((initialData.categories ?? []).map((c) => c._id));
@@ -155,13 +164,12 @@ export function RehabPlanModal({
         weekStart: '',
         weekEnd: '',
         planDurationInWeeks: '',
+        discountCode: 0, // <-- default empty for new plans
       } as FormInput);
 
       setSelectedIds([]);
       setSelectedEquipmentIds([]);
     }
-    console.log("this is initial data");
-    console.log(initialData);
   }, [initialData, form, isOpen]);
 
   /** checkbox toggle helper */
@@ -187,7 +195,6 @@ export function RehabPlanModal({
       description: values.description || undefined,
       planType: values.planType,
       openEnded: !!values.openEnded,
-      // force 0 when free:
       price: values.planType === 'free' ? 0 : toNum(values.price),
       phase: values.phase || undefined,
       weekStart: toNum(values.weekStart),
@@ -195,7 +202,9 @@ export function RehabPlanModal({
       planDurationInWeeks: toNum(values.planDurationInWeeks),
       category: selectedIds,
       equipment: selectedEquipmentIds,
+      discountCode: values.discountCode || 0, // <-- include discount
     };
+
     console.log("this is payload");
     console.log(payload);
 
@@ -278,6 +287,28 @@ export function RehabPlanModal({
                 </FormItem>
               )}
             />
+            {planType !== 'free' && (
+              <FormField
+                control={form.control}
+                name="discountCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Enter  Discount in  Percantage for coupon</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Enter promo code"
+                        value={field.value ?? 0}
+                        onChange={(e) => field.onChange(Number(e.currentTarget.value))}
+                      />
+
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
 
             {/* Category multi-select (checkbox list) */}
             <FormField
@@ -428,23 +459,7 @@ export function RehabPlanModal({
             />
 
             {/* Nicer switch for openEnded */}
-            <FormField
-              control={form.control}
-              name="openEnded"
-              render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-md border p-3">
-                  <div className="space-y-0.5">
-                    <FormLabel>Open Ended</FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      If enabled, the plan doesn’t have a fixed end week.
-                    </p>
-                  </div>
-                  <FormControl>
-                    <Switch checked={!!field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+
           </form>
         </Form>
 

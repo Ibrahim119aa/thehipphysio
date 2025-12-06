@@ -14,7 +14,7 @@ type State = {
   rehabPlanCategories: RehabPlanCategory[];
   loading: boolean;
   fetchRehabPlanCategories: () => Promise<void>;
-  addRehabPlanCategory: (p: { title: string; description: string }) => Promise<RehabPlanCategory>;
+  addRehabPlanCategory: (p: { title: string; description: string }) => Promise<RehabPlanCategory | null>;
   updateRehabPlanCategory: (p: { _id: string; title: string; description: string }) => Promise<RehabPlanCategory>;
   deleteRehabPlanCategory: (id: string) => Promise<void>;
 };
@@ -27,8 +27,8 @@ export const useRehabPlanCategoryStore = create<State>((set) => ({
   fetchRehabPlanCategories: async () => {
     set({ loading: true });
     try {
-      const res = await fetch(`${config.baseUri}/api/rehab-plans/category`, { 
-        credentials: 'include',  
+      const res = await fetch(`${config.baseUri}/api/rehab-plans/category`, {
+        credentials: 'include',
       });
 
       const result = await res.json().catch(() => ({} as unknown));
@@ -38,7 +38,7 @@ export const useRehabPlanCategoryStore = create<State>((set) => ({
         set({ loading: false })
         return;
       }
-      
+
       set({ rehabPlanCategories: result.categories });
     } finally {
       set({ loading: false });
@@ -47,23 +47,33 @@ export const useRehabPlanCategoryStore = create<State>((set) => ({
 
   addRehabPlanCategory: async (payload) => {
 
-    const res = await fetch(`${config.baseUri}/api/rehab-plans/category`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    
-    const data = await res.json().catch(() => ({} as unknown));
-    
-    if (!res.ok) throw new Error(data?.message || data?.error || 'Failed to create category');
+    try {
+      const res = await fetch(`${config.baseUri}/api/rehab-plans/category`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    const created: RehabPlanCategory = data?.data ?? data?.category;
-    
-    if (created && created._id) {
-      set((s) => ({ rehabPlanCategories: [created, ...s.rehabPlanCategories] }));
+      const data = await res.json().catch(() => ({} as unknown));
+
+      if (!res.ok) throw new Error(data?.message || data?.error || 'Failed to create category');
+
+      const created: RehabPlanCategory = data?.data ?? data?.category;
+
+      if (created && created._id) {
+        toast.error('Server did not return the created plan category.');
+        // set((s) => ({ rehabPlanCategories: [created, ...s.rehabPlanCategories] }));
+      }
+
+
+      toast.success(data?.message || 'Rehab plan category created successfully.');
+      return created;
+    } catch (err) {
+      toast.error((err as Error).message);
+      // set({ error: (err as Error).message, loading: false });
+      return null;
     }
-    return created;
   },
 
   updateRehabPlanCategory: async ({ _id, ...payload }) => {

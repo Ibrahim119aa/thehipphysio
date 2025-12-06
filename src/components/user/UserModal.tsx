@@ -108,6 +108,10 @@ export function UserModal({
       return;
     }
 
+    console.log("this is dob");
+    console.log(values.dob);
+    console.log("this is occupation ");
+    console.log(values.occupation)
     const payload: Partial<User> = {
       name: values.name.trim(),
       email: values.email.trim().toLowerCase(),
@@ -119,10 +123,13 @@ export function UserModal({
         ? { password: values.password.trim() }
         : {}),
     };
+    console.log("this is payload");
+    console.log(payload);
+
 
     await onSubmit(payload);
     // parent usually closes after onSubmit, but closing here is also fine:
-    onClose();
+    // onClose();
   };
 
   return (

@@ -49,29 +49,7 @@ const formSchema = z.object({
     }, {
       message: "Only MP4 or MOV files are allowed.",
     })
-    .refine(async (file) => {
-      // ✅ Skip for existing URLs
-      if (typeof file === "string") return true;
-      if (!file || !file[0]) return false;
-
-      const fl = file[0];
-      if (!(fl instanceof File)) return true;
-
-      const url = URL.createObjectURL(fl);
-      return new Promise((resolve) => {
-        const video = document.createElement("video");
-        video.preload = "metadata";
-        video.src = url;
-        video.onloadedmetadata = () => {
-          URL.revokeObjectURL(url);
-          const valid = video.videoWidth <= 1280 && video.videoHeight <= 720;
-          resolve(valid);
-        };
-        video.onerror = () => resolve(false);
-      });
-    }, {
-      message: "Video resolution must be ≤ 1280x720 (HD).",
-    }),
+    ,
   thumbnail: z.any().optional()
 });
 

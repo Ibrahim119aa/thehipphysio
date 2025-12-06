@@ -68,13 +68,16 @@ export interface RehabPlan {
   price?: number;
   phase?: string;
   openEnded: boolean;
+  promotionCodeId?: string;
 
   weekStart?: number | null;
+
   weekEnd?: number | null;
   planDurationInWeeks?: number;
 
   totalWeeks?: number;
   totalExercises?: number;
+  discountCode?: number;
   totalMinutes?: number;
 
   categories?: Array<{ _id: string; title: string }>;

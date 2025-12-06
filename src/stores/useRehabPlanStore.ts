@@ -28,7 +28,7 @@ type RehabPlanStore = {
 
   fetchPlans: () => Promise<void>;
   addPlan: (payload: { name: string; planType: 'free' | 'monthly-paid' | 'yearly-paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[] }) => Promise<boolean>;
-  updatePlan: (payload: { _id: string; name: string; planType: 'free' | 'monthly-paid' | 'yearly-paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[] }) => Promise<boolean>;
+  updatePlan: (payload: { _id: string; name: string; planType: 'free' | 'monthly-paid' | 'yearly-paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[],discountCode: number }) => Promise<boolean>;
   duplicatePlan: (_id: string) => Promise<boolean>;
   deletePlan: (id: string) => Promise<void>;
   assignPlanToUser: (payload: AssignPayload) => Promise<boolean>;
@@ -43,7 +43,7 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
   loading: false,
   error: null,
 
- 
+
   // GET /api/rehab-plans
   fetchPlans: async () => {
     set({ loading: true, error: null });
@@ -355,7 +355,7 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       toast.error('No exercise provided');
       return false;
     }
-
+    
     set({ loading: true, error: null });
     try {
       // 1) Create the Session
@@ -391,7 +391,7 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
 
       // 2) Attach to plan.schedule (upsert week/day + push sessionId)
       if (!data1?.isExisting) {
-        const res2 = await fetch(`${config.baseUri}/api/rehab-plans/${planId}`, {
+        const res2 = await fetch(`${config.baseUri}/api/rehab-plans/${planId}/session`, {
           method: 'PUT',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
