@@ -65,6 +65,7 @@ export default function UsersPage() {
   const {
     users,
     loading,
+    pagination,
     fetchUsers,
     deleteUser,
     addUser,
@@ -77,7 +78,7 @@ export default function UsersPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(1, 10);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -109,7 +110,7 @@ export default function UsersPage() {
   const handleDeleteConfirm = async () => {
     if (selectedUser) {
       await deleteUser(selectedUser._id);
-      await fetchUsers();
+      await fetchUsers(pagination?.currentPage || 1, 10);
     }
     handleCloseConfirm();
   };
@@ -139,7 +140,7 @@ export default function UsersPage() {
           throw new Error('Password is required when creating a user.');
         }
       }
-      await fetchUsers();
+      await fetchUsers(pagination?.currentPage || 1, 10);
       handleCloseModal();
     } finally {
       setSaving(false);
@@ -197,6 +198,12 @@ export default function UsersPage() {
         data={users}
         searchKey="name"
         isLoading={loading && users.length === 0}
+        pagination={pagination ? {
+          currentPage: pagination.currentPage,
+          totalPages: pagination.totalPages,
+          totalItems: pagination.totalItems,
+          onPageChange: (newPage) => fetchUsers(newPage, 10),
+        } : undefined}
       />
 
       <UserModal

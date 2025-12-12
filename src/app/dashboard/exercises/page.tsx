@@ -17,7 +17,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { ExerciseModal } from '@/components/exercises/ExerciseModal';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 
-/** Controlled row actions: menu always closes before opening dialogs */
+/* Row Action Menu */
 function RowActions({
   exercise,
   onEdit,
@@ -36,7 +36,6 @@ function RowActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {/* Use onSelect so Radix closes the menu reliably */}
         <DropdownMenuItem onSelect={() => { setOpen(false); onEdit(exercise); }}>
           Edit
         </DropdownMenuItem>
@@ -55,6 +54,7 @@ export default function ExercisesPage() {
   const {
     exercises,
     loading,
+    pagination,
     fetchExercises,
     addExercise,
     updateExercise,
@@ -66,14 +66,10 @@ export default function ExercisesPage() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [modalKey, setModalKey] = useState(0);
 
+  /* Load first page */
   useEffect(() => {
-    fetchExercises();
-  }, [fetchExercises]);
-
-  // const handleOpenModal = (exercise: Exercise | null = null) => {
-  //   setSelectedExercise(exercise);
-  //   setIsModalOpen(true);
-  // };
+    fetchExercises(1, 10);
+  }, []);
 
   const handleOpenModal = (exercise: Exercise | null = null) => {
     setSelectedExercise(exercise);
@@ -96,9 +92,10 @@ export default function ExercisesPage() {
     setSelectedExercise(null);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (selectedExercise) {
-      deleteExercise(selectedExercise._id);
+      await deleteExercise(selectedExercise._id);
+      await fetchExercises(pagination?.currentPage || 1, 10);
     }
     handleCloseConfirm();
   };
@@ -107,9 +104,10 @@ export default function ExercisesPage() {
     const success = selectedExercise
       ? await updateExercise(formData)
       : await addExercise(formData);
+
     if (success) {
       handleCloseModal();
-      await fetchExercises();
+      await fetchExercises(pagination?.currentPage || 1, 10);
     }
   };
 
@@ -117,35 +115,35 @@ export default function ExercisesPage() {
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: (exercise) => <div className="font-medium">{exercise.name}</div>,
+      cell: (row) => <div className="font-medium">{row.name}</div>,
     },
     {
       accessorKey: 'category',
       header: 'Category',
-      cell: (exercise) => exercise.category?.title ?? '—',
+      cell: (row) => row.category?.title ?? '—',
     },
     {
       accessorKey: 'bodyPart',
       header: 'Body Part',
-      cell: (exercise) => exercise.bodyPart,
+      cell: (row) => row.bodyPart,
     },
     {
       accessorKey: 'difficulty',
       header: 'Difficulty',
-      cell: (exercise) => (
-        <Badge variant={exercise.difficulty === 'Advanced' ? 'destructive' : 'secondary'}>
-          {exercise.difficulty}
+      cell: (row) => (
+        <Badge variant={row.difficulty === 'Advanced' ? 'destructive' : 'secondary'}>
+          {row.difficulty}
         </Badge>
       ),
     },
-    { accessorKey: 'reps', header: 'Reps', cell: (exercise) => exercise.reps },
-    { accessorKey: 'sets', header: 'Sets', cell: (exercise) => exercise.sets },
+    { accessorKey: 'reps', header: 'Reps', cell: (row) => row.reps },
+    { accessorKey: 'sets', header: 'Sets', cell: (row) => row.sets },
     {
       accessorKey: '_id',
       header: 'Actions',
-      cell: (exercise) => (
+      cell: (row) => (
         <RowActions
-          exercise={exercise}
+          exercise={row}
           onEdit={handleOpenModal}
           onDelete={handleOpenConfirm}
         />
@@ -166,9 +164,14 @@ export default function ExercisesPage() {
         data={exercises}
         searchKey="name"
         isLoading={loading && exercises.length === 0}
+        pagination={pagination ? {
+          currentPage: pagination.currentPage,
+          totalPages: pagination.totalPages,
+          totalItems: pagination.totalItems,
+          onPageChange: (newPage) => fetchExercises(newPage, 10),
+        } : undefined}
       />
 
-      {/* Exercise Modal — only call onClose when Radix asks to CLOSE (see file change below) */}
       <ExerciseModal
         key={selectedExercise?._id ?? `new-${modalKey}`}
         isOpen={isModalOpen}
@@ -178,7 +181,6 @@ export default function ExercisesPage() {
         isLoading={loading}
       />
 
-      {/* Confirm Dialog — same close guard (see file change below) */}
       <ConfirmDialog
         isOpen={isConfirmOpen}
         onClose={handleCloseConfirm}

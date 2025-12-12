@@ -14,8 +14,13 @@ type State = {
   categories: EducationalCategory[];
   loading: boolean;
   error: string | null;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+  };
 
-  fetchCategories: () => Promise<void>;
+  fetchCategories: (page?: number, limit?: number) => Promise<void>;
   addCategory: (payload: { title: string; description: string }) => Promise<boolean>;
   updateCategory: (payload: { _id: string; title: string; description: string }) => Promise<boolean>;
   deleteCategory: (id: string) => Promise<void>;
@@ -25,11 +30,16 @@ export const useEducationalCategoryStore = create<State>((set => ({
   categories: [],
   loading: false,
   error: null,
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+  },
 
-  fetchCategories: async () => {
+  fetchCategories: async (page = 1, limit = 10) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${config.baseUri}/api/educational-videos/category`, {
+      const res = await fetch(`${config.baseUri}/api/educational-videos/category?page=${page}&limit=${limit}`, {
         credentials: 'include',
       });
       const result = await res.json();
@@ -40,7 +50,15 @@ export const useEducationalCategoryStore = create<State>((set => ({
         return;
       }
 
-      set({ categories: result.categories ?? [], loading: false });
+      set({
+        categories: result.categories ?? [],
+        pagination: result.pagination ? {
+          currentPage: result.pagination.page,
+          totalPages: result.pagination.totalPages,
+          totalItems: result.pagination.total,
+        } : undefined,
+        loading: false
+      });
     } catch (err: unknown) {
       toast.error((err as { message?: string })?.message || 'Failed to fetch categories');
       set({ error: (err as { message?: string })?.message || 'Failed to fetch categories', loading: false });

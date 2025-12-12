@@ -25,8 +25,13 @@ type RehabPlanStore = {
   plans: RehabPlan[];
   loading: boolean;
   error: string | null;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+  };
 
-  fetchPlans: () => Promise<void>;
+  fetchPlans: (page?: number, limit?: number) => Promise<void>;
   addPlan: (payload: { name: string; planType: 'free' | 'monthly-paid' | 'yearly-paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[] }) => Promise<boolean>;
   updatePlan: (payload: { _id: string; name: string; planType: 'free' | 'monthly-paid' | 'yearly-paid'; totalWeeks: number; description?: string, weekStart: number, weekEnd: number, category: string[], equipment: string[],discountCode?: number }) => Promise<boolean>;
   duplicatePlan: (_id: string) => Promise<boolean>;
@@ -42,10 +47,15 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
   plans: [],
   loading: false,
   error: null,
-
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+  },
 
   // GET /api/rehab-plans
-  fetchPlans: async () => {
+ 
+   fetchPlans: async () => {
     set({ loading: true, error: null });
     try {
       const res = await fetch(`${config.baseUri}/api/rehab-plans`, {
@@ -65,7 +75,6 @@ export const useRehabPlanStore = create<RehabPlanStore>((set, get) => ({
       set({ error: (err as Error).message || 'Failed to fetch rehab plans', loading: false });
     }
   },
-
   // POST /api/rehab-plans
   addPlan: async (payload) => {
     set({ loading: true, error: null });

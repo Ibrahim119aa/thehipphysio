@@ -13,7 +13,12 @@ export type RehabPlanCategory = {
 type State = {
   rehabPlanEquipment: RehabPlanCategory[];
   loading: boolean;
-  fetchRehabPlanEquipment: () => Promise<void>;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+  };
+  fetchRehabPlanEquipment: (page?: number, limit?: number) => Promise<void>;
   addRehabPlanEquipment: (p: { title: string; description: string }) => Promise<RehabPlanCategory | null>;
   updateRehabPlanEquipment: (p: { _id: string; title: string; description: string }) => Promise<RehabPlanCategory>;
   deleteRehabPlanEquipment: (id: string) => Promise<void>;
@@ -23,11 +28,16 @@ type State = {
 export const useRehabPlanEquipmentStore = create<State>((set) => ({
   rehabPlanEquipment: [],
   loading: false,
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+  },
 
-  fetchRehabPlanEquipment: async () => {
+  fetchRehabPlanEquipment: async (page = 1, limit = 10) => {
     set({ loading: true });
     try {
-      const res = await fetch(`${config.baseUri}/api/rehab-plans/equipments`, {
+      const res = await fetch(`${config.baseUri}/api/rehab-plans/equipments?page=${page}&limit=${limit}`, {
         credentials: 'include',
       });
 
@@ -38,7 +48,14 @@ export const useRehabPlanEquipmentStore = create<State>((set) => ({
         return;
       }
 
-      set({ rehabPlanEquipment: result.equipments });
+      set({
+        rehabPlanEquipment: result.equipments,
+        pagination: result.pagination ? {
+          currentPage: result.pagination.page,
+          totalPages: result.pagination.totalPages,
+          totalItems: result.pagination.total,
+        } : undefined,
+      });
     } finally {
       set({ loading: false });
     }

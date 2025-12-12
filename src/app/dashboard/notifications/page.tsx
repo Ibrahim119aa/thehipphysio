@@ -21,7 +21,7 @@ const columns: ColumnDef<Notification>[] = [
 ];
 
 export default function NotificationsPage() {
-  const { notifications, loading, fetchNotifications, sendNotification } = useNotificationStore();
+  const { notifications, loading, pagination, fetchNotifications, sendNotification } = useNotificationStore();
 
   // 👇 reuse your existing user store
   const { usersPickList, loading: usersLoading, fetchUsersPickList } = useUserStore();
@@ -36,7 +36,7 @@ export default function NotificationsPage() {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 
   useEffect(() => {
-    if (notifications?.length === 0) fetchNotifications();
+    if (notifications?.length === 0) fetchNotifications(1, 10);
   }, [notifications?.length, fetchNotifications]);
 
   // Load users only when needed
@@ -245,6 +245,12 @@ export default function NotificationsPage() {
               data={notifications}
               searchKey="title"
               isLoading={loading}
+              pagination={pagination ? {
+                currentPage: pagination.currentPage,
+                totalPages: pagination.totalPages,
+                totalItems: pagination.totalItems,
+                onPageChange: (newPage) => fetchNotifications(newPage, 10),
+              } : undefined}
             />
           </CardContent>
         </Card>

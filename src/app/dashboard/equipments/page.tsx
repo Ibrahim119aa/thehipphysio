@@ -61,6 +61,7 @@ export default function ExerciseCategoriesPage() {
   const {
     rehabPlanEquipment ,
     loading,
+    pagination,
     fetchRehabPlanEquipment,
     addRehabPlanEquipment,
     updateRehabPlanEquipment,
@@ -74,7 +75,7 @@ export default function ExerciseCategoriesPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetchRehabPlanEquipment();
+    fetchRehabPlanEquipment(1, 10);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -106,7 +107,7 @@ export default function ExerciseCategoriesPage() {
   const handleDeleteConfirm = async () => {
     if (selectedCategory) {
       await deleteRehabPlanEquipment(selectedCategory._id);
-      await fetchRehabPlanEquipment();
+      await fetchRehabPlanEquipment(pagination?.currentPage || 1, 10);
     }
     handleCloseConfirm();
   };
@@ -119,7 +120,7 @@ export default function ExerciseCategoriesPage() {
       } else {
         await addRehabPlanEquipment(payload);
       }
-      await fetchRehabPlanEquipment();
+      await fetchRehabPlanEquipment(pagination?.currentPage || 1, 10);
       handleCloseModal();
     } finally {
       setSaving(false);
@@ -171,6 +172,12 @@ export default function ExerciseCategoriesPage() {
         data={safeCategories}
         searchKey="title"
         isLoading={loading && rehabPlanEquipment.length === 0}
+        pagination={pagination ? {
+          currentPage: pagination.currentPage,
+          totalPages: pagination.totalPages,
+          totalItems: pagination.totalItems,
+          onPageChange: (newPage) => fetchRehabPlanEquipment(newPage, 10),
+        } : undefined}
       />
 
       <PlanEquipmentModal

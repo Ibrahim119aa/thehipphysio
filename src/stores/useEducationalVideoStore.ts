@@ -21,8 +21,13 @@ type State = {
   categories: EVCategory[];
   loading: boolean;
   error: string | null;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+  };
 
-  fetchVideos: () => Promise<void>;
+  fetchVideos: (page?: number, limit?: number) => Promise<void>;
   fetchCategories: () => Promise<void>;
   addVideo: (form: FormData) => Promise<boolean>;
   updateVideo: (form: FormData) => Promise<boolean>;
@@ -34,11 +39,16 @@ export const useEducationalVideoStore = create<State>((set) => ({
   categories: [],
   loading: false,
   error: null,
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+  },
 
-  fetchVideos: async () => {
+  fetchVideos: async (page = 1, limit = 10) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${config.baseUri}/api/educational-videos`, {
+      const res = await fetch(`${config.baseUri}/api/educational-videos?page=${page}&limit=${limit}`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -50,7 +60,15 @@ export const useEducationalVideoStore = create<State>((set) => ({
         return;
       }
 
-      set({ videos: result.data ?? [], loading: false });
+      set({
+        videos: result.data ?? [],
+        pagination: result.pagination ? {
+          currentPage: result.pagination.page,
+          totalPages: result.pagination.totalPages,
+          totalItems: result.pagination.total,
+        } : undefined,
+        loading: false
+      });
     } catch (err: unknown) {
       toast.error((err as { message?: string })?.message || 'Failed to fetch videos');
       set({ error: (err as { message?: string })?.message || 'Failed to fetch videos', loading: false });

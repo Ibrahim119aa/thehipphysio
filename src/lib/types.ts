@@ -53,8 +53,13 @@ export interface Exercise {
 export interface ExerciseState {
   exercises: Exercise[];
   loading: boolean;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+  };
   error: string | null;
-  fetchExercises: () => Promise<void>;
+  fetchExercises: (page?: number, limit?: number) => Promise<void>;
   addExercise: (formData: FormData) => Promise<boolean>;
   updateExercise: (formData: FormData) => Promise<boolean>;
   deleteExercise: (exerciseId: string) => Promise<void>;
@@ -119,7 +124,12 @@ export interface NotificationState {
   notifications: Notification[];
   loading: boolean;
   error: string | null;
-  fetchNotifications: () => Promise<void>;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+  };
+  fetchNotifications: (page?: number, limit?: number) => Promise<void>;
   sendNotification: (notification: SendNotificationInput) => Promise<void>;
 }
 
@@ -188,7 +198,7 @@ export interface ExerciseState {
   exercises: Exercise[];
   loading: boolean;
   error: string | null;
-  fetchExercises: () => Promise<void>;
+  fetchExercises: (page?: number, limit?: number) => Promise<void>;
 }
 
 // export interface RehabPlanState {

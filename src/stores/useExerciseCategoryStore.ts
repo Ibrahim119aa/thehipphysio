@@ -14,7 +14,12 @@ export type ExerciseCategory = {
 type State = {
   exerciseCategories: ExerciseCategory[];
   loading: boolean;
-  fetchExerciseCategories: () => Promise<void>;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+  };
+  fetchExerciseCategories: (page?: number, limit?: number) => Promise<void>;
   addExerciseCategory: (p: { title: string; description: string }) => Promise<ExerciseCategory>;
   updateExerciseCategory: (p: { _id: string; title: string; description: string }) => Promise<ExerciseCategory>;
   deleteExerciseCategory: (id: string) => Promise<void>;
@@ -24,26 +29,38 @@ type State = {
 export const useExerciseCategoryStore = create<State>((set) => ({
   exerciseCategories: [],
   loading: false,
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+  },
 
-  fetchExerciseCategories: async () => {
+  fetchExerciseCategories: async (page = 1, limit = 10) => {
     set({ loading: true });
     try {
-      const res = await fetch(`${config.baseUri}/api/exercise-categories`, { 
-        credentials: 'include',  
+      const res = await fetch(`${config.baseUri}/api/exercise-categories?page=${page}&limit=${limit}`, {
+        credentials: 'include',
       });
 
       const result = await res.json().catch(() => ({} as unknown));
       console.log("this is exercise category");
-      
+
       console.log(result);
-      
+
       if (!result.success) {
         toast.error(result?.message || 'Failed to fetch categories')
         set({ loading: false })
         return;
       }
- 
-      set({ exerciseCategories: result.data });
+
+      set({
+        exerciseCategories: result.data,
+        pagination: result.pagination ? {
+          currentPage: result.pagination.page,
+          totalPages: result.pagination.totalPages,
+          totalItems: result.pagination.total,
+        } : undefined,
+      });
     } finally {
       set({ loading: false });
     }
@@ -57,13 +74,13 @@ export const useExerciseCategoryStore = create<State>((set) => ({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    
+
     const data = await res.json().catch(() => ({} as unknown));
-    
+
     if (!res.ok) throw new Error(data?.message || data?.error || 'Failed to create category');
 
     const created: ExerciseCategory = data?.data ?? data?.category;
-    
+
     if (created && created._id) {
       set((s) => ({ exerciseCategories: [created, ...s.exerciseCategories] }));
     }

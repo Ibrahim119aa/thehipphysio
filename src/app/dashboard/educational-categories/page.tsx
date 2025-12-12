@@ -63,6 +63,7 @@ export default function EducationalCategoriesPage() {
   const {
     categories,
     loading,
+    pagination,
     fetchCategories,
     addCategory,
     updateCategory,
@@ -75,7 +76,7 @@ export default function EducationalCategoriesPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetchCategories();
+    fetchCategories(1, 10);
   }, [fetchCategories]);
 
   const openCreateModal = () => {
@@ -106,7 +107,7 @@ export default function EducationalCategoriesPage() {
   const handleDeleteConfirm = async () => {
     if (selectedCategory) {
       await deleteCategory(selectedCategory._id);
-      await fetchCategories();
+      await fetchCategories(pagination?.currentPage || 1, 10);
     }
     handleCloseConfirm();
   };
@@ -123,7 +124,7 @@ export default function EducationalCategoriesPage() {
       } else {
         await addCategory(payload);
       }
-      await fetchCategories();
+      await fetchCategories(pagination?.currentPage || 1, 10);
       handleCloseModal();
     } finally {
       setSaving(false);
@@ -192,6 +193,12 @@ export default function EducationalCategoriesPage() {
         data={safeCategories}
         searchKey="title"
         isLoading={loading && categories.length === 0}
+        pagination={pagination ? {
+          currentPage: pagination.currentPage,
+          totalPages: pagination.totalPages,
+          totalItems: pagination.totalItems,
+          onPageChange: (newPage) => fetchCategories(newPage, 10),
+        } : undefined}
       />
 
       <EducationalCategoryModal

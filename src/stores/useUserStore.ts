@@ -57,8 +57,13 @@ export interface UserState {
   usersPickList: UsersPickLIst[];
   loading: boolean;
   error: string | null;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+  };
 
-  fetchUsers: () => Promise<void>;
+  fetchUsers: (page?: number, limit?: number) => Promise<void>;
   addUser: (payload: CreateUserPayload) => Promise<User>;
   updateUser: (payload: UpdateUserPayload) => Promise<User>;
   deleteUser: (id: string) => Promise<void>;
@@ -106,12 +111,17 @@ export const useUserStore = create<UserState>((set) => ({
   usersPickList: [],
   loading: false,
   error: null,
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+  },
 
   // READ
-  fetchUsers: async () => {
+  fetchUsers: async (page = 1, limit = 10) => {
     set({ loading: true, error: null });
     try {
-      const response = await fetch(`${config.baseUri}/api/user/all`, {
+      const response = await fetch(`${config.baseUri}/api/user/all?page=${page}&limit=${limit}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -125,7 +135,15 @@ export const useUserStore = create<UserState>((set) => ({
       }
 
       const data = Array.isArray(result.data) ? result.data : [];
-      set({ users: data.map(normalizeUser), loading: false });
+      set({
+        users: data.map(normalizeUser),
+        pagination: result.pagination ? {
+          currentPage: result.pagination.currentPage,
+          totalPages: result.pagination.totalPages,
+          totalItems: result.pagination.totalItems,
+        } : undefined,
+        loading: false
+      });
     } catch {
       set({ error: 'Failed to fetch users', loading: false });
       toast.error('Failed to fetch users');

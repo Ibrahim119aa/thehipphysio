@@ -13,7 +13,12 @@ export type RehabPlanCategory = {
 type State = {
   rehabPlanCategories: RehabPlanCategory[];
   loading: boolean;
-  fetchRehabPlanCategories: () => Promise<void>;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+  };
+  fetchRehabPlanCategories: (page?: number, limit?: number) => Promise<void>;
   addRehabPlanCategory: (p: { title: string; description: string }) => Promise<RehabPlanCategory | null>;
   updateRehabPlanCategory: (p: { _id: string; title: string; description: string }) => Promise<RehabPlanCategory>;
   deleteRehabPlanCategory: (id: string) => Promise<void>;
@@ -23,11 +28,16 @@ type State = {
 export const useRehabPlanCategoryStore = create<State>((set) => ({
   rehabPlanCategories: [],
   loading: false,
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+  },
 
-  fetchRehabPlanCategories: async () => {
+  fetchRehabPlanCategories: async (page = 1, limit = 10) => {
     set({ loading: true });
     try {
-      const res = await fetch(`${config.baseUri}/api/rehab-plans/category`, {
+      const res = await fetch(`${config.baseUri}/api/rehab-plans/category?page=${page}&limit=${limit}`, {
         credentials: 'include',
       });
 
@@ -39,7 +49,14 @@ export const useRehabPlanCategoryStore = create<State>((set) => ({
         return;
       }
 
-      set({ rehabPlanCategories: result.categories });
+      set({
+        rehabPlanCategories: result.categories,
+        pagination: result.pagination ? {
+          currentPage: result.pagination.page,
+          totalPages: result.pagination.totalPages,
+          totalItems: result.pagination.total,
+        } : undefined,
+      });
     } finally {
       set({ loading: false });
     }

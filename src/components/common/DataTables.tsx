@@ -8,8 +8,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export interface ColumnDef<T> {
   accessorKey: keyof T | 'actions';
@@ -20,6 +22,12 @@ export interface ColumnDef<T> {
 interface DataTableProps<T> {
   columns: ColumnDef<T>[];
   data: T[];
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    onPageChange: (page: number) => void;
+  };
   searchKey: keyof T;
   isLoading: boolean;
 }
@@ -27,6 +35,7 @@ export function DataTable<T extends object>({
   columns,
   data,
   searchKey,
+  pagination,
   isLoading,
 }: DataTableProps<T>) {
   const [filter, setFilter] = useState('');
@@ -79,6 +88,60 @@ export function DataTable<T extends object>({
           </TableBody>
         </Table>
       </div>
+
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between px-2 py-4">
+          <div className="text-sm text-muted-foreground">
+            Showing page {pagination.currentPage} of {pagination.totalPages} ({pagination.totalItems} total items)
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
+              disabled={pagination.currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                let pageNum;
+                if (pagination.totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (pagination.currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (pagination.currentPage >= pagination.totalPages - 2) {
+                  pageNum = pagination.totalPages - 4 + i;
+                } else {
+                  pageNum = pagination.currentPage - 2 + i;
+                }
+
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={pagination.currentPage === pageNum ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => pagination.onPageChange(pageNum)}
+                    className="w-8 h-8 p-0"
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
+              disabled={pagination.currentPage === pagination.totalPages}
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

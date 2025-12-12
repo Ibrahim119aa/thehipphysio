@@ -53,6 +53,7 @@ export default function EducationalVideosPage() {
     videos,
     categories,
     loading,
+    pagination,
     fetchVideos,
     fetchCategories,
     addVideo,
@@ -66,7 +67,7 @@ export default function EducationalVideosPage() {
   const [modalKey, setModalKey] = useState(0);
 
   useEffect(() => {
-    fetchVideos();
+    fetchVideos(1, 10);
     fetchCategories();
   }, [fetchVideos, fetchCategories]);
 
@@ -91,8 +92,11 @@ export default function EducationalVideosPage() {
     setSelectedVideo(null);
   };
 
-  const handleDeleteConfirm = () => {
-    if (selectedVideo) deleteVideo(selectedVideo._id);
+  const handleDeleteConfirm = async () => {
+    if (selectedVideo) {
+      await deleteVideo(selectedVideo._id);
+      await fetchVideos(pagination?.currentPage || 1, 10);
+    }
     handleCloseConfirm();
   };
 
@@ -102,7 +106,7 @@ export default function EducationalVideosPage() {
       : await addVideo(formData);
     if (success) {
       handleCloseModal();
-      await fetchVideos();
+      await fetchVideos(pagination?.currentPage || 1, 10);
     }
   };
 
@@ -175,6 +179,12 @@ export default function EducationalVideosPage() {
         data={videos}
         searchKey="title"
         isLoading={loading && videos.length === 0}
+        pagination={pagination ? {
+          currentPage: pagination.currentPage,
+          totalPages: pagination.totalPages,
+          totalItems: pagination.totalItems,
+          onPageChange: (newPage) => fetchVideos(newPage, 10),
+        } : undefined}
       />
 
       <EducationalVideoModal

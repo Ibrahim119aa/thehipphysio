@@ -7,10 +7,15 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   notifications: [],
   loading: false,
   error: null,
-  fetchNotifications: async () => {
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+  },
+  fetchNotifications: async (page = 1, limit = 10) => {
     set({ loading: true, error: null });
     try {
-      const response = await fetch(`${config.baseUri}/api/notifications`, {
+      const response = await fetch(`${config.baseUri}/api/notifications?page=${page}&limit=${limit}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -26,7 +31,15 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
         return;
       }
 
-      set({ notifications: result.notifications, loading: false });
+      set({
+        notifications: result.notifications,
+        pagination: result.pagination ? {
+          currentPage: result.pagination.page,
+          totalPages: result.pagination.totalPages,
+          totalItems: result.pagination.total,
+        } : undefined,
+        loading: false
+      });
 
     } catch (err) {
       set({ error: `Failed to fetch notifications ${ (err as Error).message}`, loading: false });
